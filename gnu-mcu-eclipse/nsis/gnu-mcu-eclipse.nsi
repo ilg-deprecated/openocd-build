@@ -93,9 +93,9 @@ Var Parent.INSTDIR
 ;--------------------------------
 ; Interface Settings.
 
-!define MUI_ICON "${NSIS_FOLDER}\${PRODUCTLOWERCASE}-nsis.ico"
-!define MUI_UNICON "${NSIS_FOLDER}\${PRODUCTLOWERCASE}-nsis.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${NSIS_FOLDER}\${PRODUCTLOWERCASE}-nsis.bmp"
+!define MUI_ICON "${NSIS_FOLDER}\nsis.ico"
+!define MUI_UNICON "${NSIS_FOLDER}\nsis.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${NSIS_FOLDER}\nsis.bmp"
 
 ;--------------------------------
 ; Pages.
