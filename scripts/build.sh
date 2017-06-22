@@ -183,11 +183,16 @@ then
     -a \( -f "${script_folder_path}/helper/build-helper.sh" \) ]
   then
     helper_script_path="${script_folder_path}/helper/build-helper.sh"
-  elif [ ! -f "${WORK_FOLDER_PATH}/scripts/build-helper.sh" ]
+  elif [ \( "${script_folder_name}" == "scripts" \) \
+    -a \( -d "${script_folder_path}/helper" \) ]
   then
-    git submodule update --init --recursive --remote
-    helper_script_path="${WORK_FOLDER_PATH}/scripts/helper/build-helper.sh"
-  else
+    (
+      cd "$(dirname ${script_folder_path})"
+      git submodule update --init --recursive --remote
+    )
+    helper_script_path="${script_folder_path}/helper/build-helper.sh"
+  elif [ -f "${WORK_FOLDER_PATH}/scripts/build-helper.sh" ]
+  then
     helper_script_path="${WORK_FOLDER_PATH}/scripts/build-helper.sh"
   fi
 else
