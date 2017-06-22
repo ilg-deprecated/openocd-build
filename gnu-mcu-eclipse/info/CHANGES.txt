@@ -1,6 +1,11 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2017-06-22]
+
+- v0.10.0-2-20170622-1535-dev released
+- merge RISC-V tag v20170621 
+
 [2017-06-15]
 
 - move the build specific gnu-mcu-eclipse folder to a separate openocd-build project

@@ -40,6 +40,8 @@ IFS=$'\n\t'
 # When running on OS X, a custom Homebrew is required to provide the 
 # missing libraries and TeX binaries.
 #
+# To resume a crashed build with the same timestamp, set
+# DISTRIBUTION_FILE_DATE='yyyymmdd-HHMM' in the environment.
 
 # Mandatory definition.
 APP_NAME="OpenOCD"
