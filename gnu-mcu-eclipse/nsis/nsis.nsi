@@ -30,7 +30,7 @@
 !define PUBLISHER_COMPATIBILITY   "GNU ARM Eclipse"
 !define PRODUCT                   "OpenOCD"
 !define PRODUCTLOWERCASE          "openocd"
-!define URL                       "http://gnuarmeclipse.github.io"
+!define URL                       "http://gnu-mcu-eclipse.github.io"
 
 ; Single instance, each new install will overwrite the values
 !define INSTALL_KEY_FOLDER "SOFTWARE\${PUBLISHER}\${PRODUCT}"
@@ -45,7 +45,7 @@
 !define UNINSTALL_KEY_FOLDER "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PUBLISHER} ${PRODUCT} ${BITS} ${VERSION}"
 
 !define UNINSTALL_KEY_NAME "UninstallString"
-!define UNINSTALL_EXE "$INSTDIR\${PRODUCTLOWERCASE}-uninstall.exe"
+!define UNINSTALL_EXE "$INSTDIR\uninstall.exe"
 
 !define INSTALL_LOCATION_KEY_NAME "InstallLocation"
 
@@ -101,7 +101,7 @@ Var Parent.INSTDIR
 ; Pages.
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${INSTALL_FOLDER}\COPYING"
+!insertmacro MUI_PAGE_LICENSE "${INSTALL_FOLDER}\licenses\LICENSE"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -136,16 +136,13 @@ SetOutPath "$INSTDIR\bin"
 File "${INSTALL_FOLDER}\bin\openocd.exe"
 
 SetOutPath "$INSTDIR\license"
-File /r "${INSTALL_FOLDER}\license\*"
+File /r "${INSTALL_FOLDER}\licenses\*"
 
 SetOutPath "$INSTDIR"
 File "${INSTALL_FOLDER}\INFO.txt"
 
 SetOutPath "$INSTDIR\gnu-mcu-eclipse"
 File "${INSTALL_FOLDER}\gnu-mcu-eclipse\*"
-
-; Write the uninstaller file
-WriteUninstaller "${UNINSTALL_EXE}"
 
 ; Write the uninstaller file
 WriteUninstaller "${UNINSTALL_EXE}"
