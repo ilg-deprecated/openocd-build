@@ -1,6 +1,6 @@
 # The GNU MCU Eclipse OpenOCD build project
 
-This project includes the additional files required to build [GNU MCU Eclipse OpenOCD](https://github.com/gnu-mcu-eclipse/openocd).
+These are the additional files required by the [GNU MCU Eclipse OpenOCD](https://github.com/gnu-mcu-eclipse/openocd) build procedures.
 
 ## How to build
 
@@ -10,6 +10,20 @@ $ bash ~/Downloads/openocd-build.git/scripts/build.sh --all
 ```
 
 For more details, please see the dedicated [GNU MCU Eclipse OpenOCD build](http://gnu-mcu-eclipse.github.io/openocd/) page.
+
+## Folders
+
+For consistency with other projects, all files are grouped under `gnu-mcu-eclipse`.
+
+* `info` - informative files copied to the distributed `info` folder;
+* `nsis` - files required by [NSIS (Nullsoft Scriptable Install System)](http://nsis.sourceforge.net/Main_Page);
+* `patches` - small patches to correct some problems identified in the official packages;
+* `pkgconfig` - configuration files missing in some of the official packages;
+* `scripts` - build support scripts.
+
+## Files
+
+* `VERSION` - the current build version file. Its content looks like `0.10.0-2`, where `0.10.0` is the official OpenOCD version, and `2` is the GNU MCU Eclipse OpenOCD release number.
 
 ## Repository URLs
 

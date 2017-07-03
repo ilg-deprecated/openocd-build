@@ -91,6 +91,7 @@ DO_BUILD_OSX=""
 helper_script_path=""
 do_no_strip=""
 do_no_pdf=""
+jobs=""
 
 while [ $# -gt 0 ]
 do
@@ -144,6 +145,11 @@ do
     --no-pdf)
       do_no_pdf="y"
       shift
+      ;;
+
+    --jobs)
+      jobs="--jobs=$2"
+      shift 2
       ;;
 
     --help)
@@ -338,15 +344,11 @@ then
   echo "Check/Preload Docker images..."
 
   echo
-  docker run --interactive --tty ilegeul/debian32:8-gnuarm-gcc-x11-v3 \
+  docker run --interactive --tty ilegeul/debian:9-gnu-mcu-eclipse \
   lsb_release --description --short
 
   echo
-  docker run --interactive --tty ilegeul/debian:8-gnuarm-gcc-x11-v3 \
-  lsb_release --description --short
-
-  echo
-  docker run --interactive --tty ilegeul/debian:8-gnuarm-mingw \
+  docker run --interactive --tty ilegeul/debian32:9-gnu-mcu-eclipse \
   lsb_release --description --short
 
   echo
@@ -393,14 +395,11 @@ then
   # Be sure it will not crash on errors, in case the images are already there.
   set +e
 
-  docker build --tag "ilegeul/debian32:8-gnuarm-gcc-x11-v3" \
-  https://github.com/ilg-ul/docker/raw/master/debian32/8-gnuarm-gcc-x11-v3/Dockerfile
+  docker build --tag "ilegeul/debian32:9-gnu-mcu-eclipse" \
+  https://github.com/ilg-ul/docker/raw/master/debian32/9-gnu-mcu-eclipse/Dockerfile
 
-  docker build --tag "ilegeul/debian:8-gnuarm-gcc-x11-v3" \
-  https://github.com/ilg-ul/docker/raw/master/debian/8-gnuarm-gcc-x11-v3/Dockerfile
-
-  docker build --tag "ilegeul/debian:8-gnuarm-mingw" \
-  https://github.com/ilg-ul/docker/raw/master/debian/8-gnuarm-mingw/Dockerfile
+  docker build --tag "ilegeul/debian:9-gnu-mcu-eclipse" \
+  https://github.com/ilg-ul/docker/raw/master/debian/9-gnu-mcu-eclipse/Dockerfile
 
   docker images
 
@@ -771,6 +770,7 @@ HIDAPI_FOLDER="${HIDAPI_FOLDER}"
 HIDAPI="${HIDAPI}"
 
 do_no_strip="${do_no_strip}"
+jobs="${jobs}"
 
 EOF
 # The above marker must start in the first column.
@@ -792,8 +792,6 @@ PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR:-""}
 # For just in case.
 export LC_ALL="C"
 export CONFIG_SHELL="/bin/bash"
-
-jobs="--jobs=8"
 
 script_name="$(basename "$0")"
 args="$@"
@@ -874,10 +872,10 @@ if [ "${target_name}" == "win" ]
 then
 
   # For Windows targets, decide which cross toolchain to use.
-  if [ ${target_bits} == "32" ]
+  if [ "${target_bits}" == "32" ]
   then
     cross_compile_prefix="i686-w64-mingw32"
-  elif [ ${target_bits} == "64" ]
+  elif [ "${target_bits}" == "64" ]
   then
     cross_compile_prefix="x86_64-w64-mingw32"
   fi
@@ -921,7 +919,8 @@ then
   echo "Checking makensis..."
   echo "makensis $(makensis -VERSION)"
 
-  apt-get --yes install zip
+  # Now in Docker image
+  # apt-get --yes install zip
 
   echo "Checking zip..."
   zip -v | grep "This is Zip"
@@ -959,13 +958,13 @@ then
   mkdir -p "${install_folder}"
 
   echo
-  echo "Running configure libusb1..."
+  echo "Running libusb1 configure..."
 
   cd "${build_folder_path}/${LIBUSB1_FOLDER}"
 
   if [ "${target_name}" == "win" ]
   then
-    CFLAGS="-Wno-non-literal-null-conversion -Werror -m${target_bits} -pipe" \
+    CFLAGS="-Wno-format -Werror -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --host="${cross_compile_prefix}" \
@@ -978,10 +977,12 @@ then
   fi
 
   echo
-  echo "Running make libusb1..."
+  echo "Running libusb1 make..."
 
   # Build.
-  make "${jobs}" clean install
+  # make clean
+  make ${jobs}
+  make ${jobs} install
 
   if [ "${target_name}" == "win" ]
   then
@@ -1011,7 +1012,7 @@ then
   mkdir -p "${install_folder}"
 
   echo
-  echo "Running configure libusb0..."
+  echo "Running libusb0 configure..."
 
   cd "${build_folder_path}/${LIBUSB0_FOLDER}"
 
@@ -1025,10 +1026,12 @@ then
     --prefix="${install_folder}"
 
   echo
-  echo "Running make libusb0..."
+  echo "Running libusb0 make..."
 
   # Build.
-  make "${jobs}" clean install
+  # make clean 
+  make ${jobs}
+  make ${jobs} install
 
   touch "${libusb0_stamp_file}"
 fi
@@ -1051,7 +1054,7 @@ then
     "${build_folder_path}/${LIBUSB_W32}"
 
   echo
-  echo "Running make libusb-win32..."
+  echo "Running libusb-win32 make..."
 
   cd "${build_folder_path}/${LIBUSB_W32}"
 
@@ -1104,7 +1107,7 @@ then
   mkdir -p "${install_folder}"
 
   echo
-  echo "Running cmake libftdi..."
+  echo "Running libftdi cmake..."
 
   cd "${build_folder_path}/${LIBFTDI_FOLDER}"
 
@@ -1153,10 +1156,12 @@ then
   fi
 
   echo
-  echo "Running make libftdi..."
+  echo "Running libftdi make..."
 
   # Build.
-  make "${jobs}" clean install
+  # make clean 
+  make ${jobs} 
+  make ${jobs} install
 
   if [ "${target_name}" == "win" ]
   then
@@ -1201,7 +1206,7 @@ then
     "${build_folder_path}/${HIDAPI_FOLDER}"
 
   echo
-  echo "Running make libhid..."
+  echo "Running libhid make..."
 
   if [ "${target_name}" == "win" ]
   then
@@ -1237,15 +1242,34 @@ then
   elif [ "${target_name}" == "debian" ]
   then
 
-    if [ ${target_bits} == "64" ]
+    if [ "${target_bits}" == "64" ]
     then
-      cp /usr/include/libudev.h "${install_folder}/include"
-      cp /usr/lib/x86_64-linux-gnu/libudev.so  "${install_folder}/lib"
-      cp /usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
-    elif [ ${target_bits} == "32" ] 
+      cp "/usr/include/libudev.h" "${install_folder}/include"
+      if [ -f "/usr/lib/x86_64-linux-gnu/libudev.so" ]
+      then
+        cp "/usr/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+      elif [ -f "/lib/x86_64-linux-gnu/libudev.so" ]
+      then
+        # In Debian 9 the location changed to /lib
+        cp "/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+      else
+        echo "No libudev.so; abort."
+      fi
+      cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+    elif [ "${target_bits}" == "32" ] 
     then
-      cp /usr/include/libudev.h "${install_folder}/include"
-      cp /usr/lib/i386-linux-gnu/libudev.so  "${install_folder}/lib"
+      cp "/usr/include/libudev.h" "${install_folder}/include"
+      if [ -f "/usr/lib/i386-linux-gnu/libudev.so" ]
+      then
+        cp "/usr/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+      elif [ -f "/lib/i386-linux-gnu/libudev.so" ]
+      then
+        # In Debian 9 the location changed to /lib
+        cp "/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+      else
+        echo "No libudev.so; abort."
+        exit 1
+      fi
       cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
     fi
 
@@ -1259,8 +1283,8 @@ then
     \
     ./configure --prefix="${install_folder}"
 
-    make "${jobs}" 
-    make "${jobs}" install
+    make ${jobs} 
+    make ${jobs} install
 
   elif [ "${target_name}" == "osx" ]
   then
@@ -1275,8 +1299,8 @@ then
     \
     ./configure --prefix="${install_folder}"
 
-    make "${jobs}"
-    make "${jobs}" install
+    make ${jobs}
+    make ${jobs} install
 
   fi
 
@@ -1292,7 +1316,7 @@ if [ ! -f "${build_folder_path}/${APP_LC_NAME}/config.h" ]
 then
 
   echo
-  echo "Running configure OpenOCD..."
+  echo "Running OpenOCD configure..."
 
   # Deprecated:
   # --enable-ioutil
@@ -1548,17 +1572,22 @@ then
   # at the same level in the hierarchy.
 
   echo
-  echo "Running make all..."
+  echo "Running OpenOCD make..."
 
-  cd "${build_folder_path}/${APP_LC_NAME}"
-  make "${jobs}" bindir="bin" pkgdatadir="" all pdf html \
-    | tee "${output_folder_path}/make-all-output.txt"
+  (
+    cd "${build_folder_path}/${APP_LC_NAME}"
+    make ${jobs} bindir="bin" pkgdatadir=""   
+    make ${jobs} bindir="bin" pkgdatadir="" pdf html 
+  ) | tee "${output_folder_path}/make-all-output.txt"
 
   echo
-  echo "Running make install..."
+  echo "Running OpenOCD make install..."
 
-  make "${jobs}" install install-pdf install-html install-man \
-    | tee "${output_folder_path}/make-install-output.txt"
+  (
+    cd "${build_folder_path}/${APP_LC_NAME}"
+    make ${jobs} install  
+    make ${jobs} install-pdf install-html install-man 
+  )  | tee "${output_folder_path}/make-install-output.txt"
 
   touch "${openocd_stamp_file}"
 fi
@@ -1571,130 +1600,130 @@ checking_stamp_file="${build_folder_path}/stamp_check_completed"
 if [ ! -f "${checking_stamp_file}" ]
 then
 
-if [ "${target_name}" == "win" ]
-then
-
-  if [ -z "${do_no_strip}" ]
+  if [ "${target_name}" == "win" ]
   then
-    ${cross_compile_prefix}-strip \
-      "${install_folder}/${APP_LC_NAME}/bin/openocd.exe"
+
+    if [ -z "${do_no_strip}" ]
+    then
+      ${cross_compile_prefix}-strip \
+        "${install_folder}/${APP_LC_NAME}/bin/openocd.exe"
+    fi
+
+    echo
+    echo "Copying DLLs..."
+
+    # Identify the current cross gcc version, to locate the specific dll folder.
+    CROSS_GCC_VERSION=$(${cross_compile_prefix}-gcc --version | grep 'gcc' | sed -e 's/.*\s\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*/\1.\2.\3/')
+    CROSS_GCC_VERSION_SHORT=$(echo $CROSS_GCC_VERSION | sed -e 's/\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*/\1.\2/')
+    SUBLOCATION="-win32"
+
+    echo "${CROSS_GCC_VERSION}" "${CROSS_GCC_VERSION_SHORT}" "${SUBLOCATION}"
+
+    if [ "${target_bits}" == "32" ]
+    then
+      do_container_win_copy_gcc_dll "libgcc_s_sjlj-1.dll"
+    elif [ "${target_bits}" == "64" ]
+    then
+      do_container_win_copy_gcc_dll "libgcc_s_seh-1.dll"
+    fi
+
+    do_container_win_copy_libwinpthread_dll
+
+    # Copy possible DLLs. Currently only libusb0.dll is dynamic, all other
+    # are also compiled as static.
+    cp -v "${install_folder}/bin/"*.dll "${install_folder}/${APP_LC_NAME}/bin"
+
+    if [ -z "${do_no_strip}" ]
+    then
+      ${cross_compile_prefix}-strip "${install_folder}/${APP_LC_NAME}/bin/"*.dll
+    fi
+
+  elif [ "${target_name}" == "debian" ]
+  then
+
+    if [ -z "${do_no_strip}" ]
+    then
+      strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
+    fi
+
+    # This is a very important detail: 'patchelf' sets "runpath"
+    # in the ELF file to $ORIGIN, telling the loader to search
+    # for the libraries first in LD_LIBRARY_PATH (if set) and, if not found there,
+    # to look in the same folder where the executable is located -- where
+    # this build script installs the required libraries. 
+    # Note: LD_LIBRARY_PATH can be set by a developer when testing alternate 
+    # versions of the openocd libraries without removing or overwriting 
+    # the installed library files -- not done by the typical user. 
+    # Note: patchelf changes the original "rpath" in the executable (a path 
+    # in the docker container) to "runpath" with the value "$ORIGIN". rpath 
+    # instead or runpath could be set to $ORIGIN but rpath is searched before
+    # LD_LIBRARY_PATH which requires an installed library be deleted or
+    # overwritten to test or use an alternate version. In addition, the usage of
+    # rpath is deprecated. See man ld.so for more info.  
+    # Also, runpath is added to the installed library files using patchelf, with 
+    # value $ORIGIN, in the same way. See patchelf usage in build-helper.sh.
+    #
+    patchelf --set-rpath '$ORIGIN' "${install_folder}/${APP_LC_NAME}/bin/openocd"
+
+    echo
+    echo "Copying shared libs..."
+
+    if [ "${target_bits}" == "64" ]
+    then
+      distro_machine="x86_64"
+    elif [ "${target_bits}" == "32" ]
+    then
+      distro_machine="i386"
+    fi
+
+    do_container_linux_copy_user_so libusb-1.0
+    do_container_linux_copy_user_so libusb-0.1
+    do_container_linux_copy_user_so libftdi1
+    do_container_linux_copy_user_so libhidapi-hidraw
+
+    do_container_linux_copy_system_so libudev
+    do_container_linux_copy_librt_so
+
+  elif [ "${target_name}" == "osx" ]
+  then
+
+    if [ -z "${do_no_strip}" ]
+    then
+      strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
+    fi
+
+    echo
+    echo "Copying dynamic libs..."
+
+    # Post-process dynamic libraries paths to be relative to executable folder.
+
+    ILIB=openocd
+    # otool -L "${install_folder}/${APP_LC_NAME}/bin/openocd"
+
+    install_name_tool -change "libftdi1.2.dylib" "@executable_path/libftdi1.2.dylib" \
+      "${install_folder}/${APP_LC_NAME}/bin/openocd"
+    do_container_mac_change_built_lib libusb-1.0.0.dylib
+    do_container_mac_change_built_lib libusb-0.1.4.dylib
+    do_container_mac_change_built_lib libhidapi.0.dylib
+    do_container_mac_check_libs
+
+    do_container_mac_copy_built_lib libftdi1.2.dylib
+    do_container_mac_change_built_lib libusb-1.0.0.dylib
+    do_container_mac_check_libs
+
+    do_container_mac_copy_built_lib libusb-0.1.4.dylib
+    do_container_mac_change_built_lib libusb-1.0.0.dylib
+    do_container_mac_check_libs
+
+    do_container_mac_copy_built_lib libusb-1.0.0.dylib
+    do_container_mac_check_libs
+
+    do_container_mac_copy_built_lib libhidapi.0.dylib
+    do_container_mac_check_libs
+
   fi
 
-  echo
-  echo "Copying DLLs..."
-
-  # Identify the current cross gcc version, to locate the specific dll folder.
-  CROSS_GCC_VERSION=$(${cross_compile_prefix}-gcc --version | grep 'gcc' | sed -e 's/.*\s\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*/\1.\2.\3/')
-  CROSS_GCC_VERSION_SHORT=$(echo $CROSS_GCC_VERSION | sed -e 's/\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*/\1.\2/')
-  SUBLOCATION="-win32"
-
-  echo "${CROSS_GCC_VERSION}" "${CROSS_GCC_VERSION_SHORT}" "${SUBLOCATION}"
-
-  if [ "${target_bits}" == "32" ]
-  then
-    do_container_win_copy_gcc_dll "libgcc_s_sjlj-1.dll"
-  elif [ "${target_bits}" == "64" ]
-  then
-    do_container_win_copy_gcc_dll "libgcc_s_seh-1.dll"
-  fi
-
-  do_container_win_copy_libwinpthread_dll
-
-  # Copy possible DLLs. Currently only libusb0.dll is dynamic, all other
-  # are also compiled as static.
-  cp -v "${install_folder}/bin/"*.dll "${install_folder}/${APP_LC_NAME}/bin"
-
-  if [ -z "${do_no_strip}" ]
-  then
-    ${cross_compile_prefix}-strip "${install_folder}/${APP_LC_NAME}/bin/"*.dll
-  fi
-
-elif [ "${target_name}" == "debian" ]
-then
-
-  if [ -z "${do_no_strip}" ]
-  then
-    strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
-  fi
-
-  # This is a very important detail: 'patchelf' sets "runpath"
-  # in the ELF file to $ORIGIN, telling the loader to search
-  # for the libraries first in LD_LIBRARY_PATH (if set) and, if not found there,
-  # to look in the same folder where the executable is located -- where
-  # this build script installs the required libraries. 
-  # Note: LD_LIBRARY_PATH can be set by a developer when testing alternate 
-  # versions of the openocd libraries without removing or overwriting 
-  # the installed library files -- not done by the typical user. 
-  # Note: patchelf changes the original "rpath" in the executable (a path 
-  # in the docker container) to "runpath" with the value "$ORIGIN". rpath 
-  # instead or runpath could be set to $ORIGIN but rpath is searched before
-  # LD_LIBRARY_PATH which requires an installed library be deleted or
-  # overwritten to test or use an alternate version. In addition, the usage of
-  # rpath is deprecated. See man ld.so for more info.  
-  # Also, runpath is added to the installed library files using patchelf, with 
-  # value $ORIGIN, in the same way. See patchelf usage in build-helper.sh.
-  #
-  patchelf --set-rpath '$ORIGIN' "${install_folder}/${APP_LC_NAME}/bin/openocd"
-
-  echo
-  echo "Copying shared libs..."
-
-  if [ "${target_bits}" == "64" ]
-  then
-    distro_machine="x86_64"
-  elif [ "${target_bits}" == "32" ]
-  then
-    distro_machine="i386"
-  fi
-
-  do_container_linux_copy_user_so libusb-1.0
-  do_container_linux_copy_user_so libusb-0.1
-  do_container_linux_copy_user_so libftdi1
-  do_container_linux_copy_user_so libhidapi-hidraw
-
-  do_container_linux_copy_system_so libudev
-  do_container_linux_copy_librt_so
-
-elif [ "${target_name}" == "osx" ]
-then
-
-  if [ -z "${do_no_strip}" ]
-  then
-    strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
-  fi
-
-  echo
-  echo "Copying dynamic libs..."
-
-  # Post-process dynamic libraries paths to be relative to executable folder.
-
-  ILIB=openocd
-  # otool -L "${install_folder}/${APP_LC_NAME}/bin/openocd"
-
-  install_name_tool -change "libftdi1.2.dylib" "@executable_path/libftdi1.2.dylib" \
-    "${install_folder}/${APP_LC_NAME}/bin/openocd"
-  do_container_mac_change_built_lib libusb-1.0.0.dylib
-  do_container_mac_change_built_lib libusb-0.1.4.dylib
-  do_container_mac_change_built_lib libhidapi.0.dylib
-  do_container_mac_check_libs
-
-  do_container_mac_copy_built_lib libftdi1.2.dylib
-  do_container_mac_change_built_lib libusb-1.0.0.dylib
-  do_container_mac_check_libs
-
-  do_container_mac_copy_built_lib libusb-0.1.4.dylib
-  do_container_mac_change_built_lib libusb-1.0.0.dylib
-  do_container_mac_check_libs
-
-  do_container_mac_copy_built_lib libusb-1.0.0.dylib
-  do_container_mac_check_libs
-
-  do_container_mac_copy_built_lib libhidapi.0.dylib
-  do_container_mac_check_libs
-
-fi
-
-touch "${checking_stamp_file}"
+  touch "${checking_stamp_file}"
 fi
 
 # ----- Copy the license files. -----
@@ -1721,13 +1750,15 @@ then
 
   if [ "${target_name}" == "win" ]
   then
+    # Copy the LICENSE to be used by nsis.
+    /usr/bin/install -v -c -m 644 "${git_folder_path}/LICENSE" "${install_folder}/${APP_LC_NAME}/licenses"
+
     # For Windows, process cr lf
-    find "${install_folder}/${APP_LC_NAME}/license" -type f \
+    find "${install_folder}/${APP_LC_NAME}/licenses" -type f \
       -exec unix2dos {} \;
   fi
 
   touch "${license_stamp_file}"
-
 fi
 
 
@@ -1783,7 +1814,7 @@ if [ "${HOST_UNAME}" == "Darwin" ]
 then
   if [ "${DO_BUILD_OSX}" == "y" ]
   then
-    do_host_build_target "Creating OS X package..." \
+    do_host_build_target "Creating OS X archive & package..." \
       --target-name osx
   fi
 fi
@@ -1792,20 +1823,21 @@ fi
 
 if [ "${DO_BUILD_WIN64}" == "y" ]
 then
-  do_host_build_target "Creating Windows 64-bits setup..." \
+  do_host_build_target "Creating Windows 64-bits archive & setup..." \
     --target-name win \
     --target-bits 64 \
-    --docker-image "ilegeul/debian:8-gnuarm-mingw-v2"
+    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
 fi
 
 # ----- Build the Windows 32-bits distribution. -----
 
 if [ "${DO_BUILD_WIN32}" == "y" ]
 then
-  do_host_build_target "Creating Windows 32-bits setup..." \
+  # Debian 9 not yet functional :-(
+  do_host_build_target "Creating Windows 32-bits archive & setup..." \
     --target-name win \
     --target-bits 32 \
-    --docker-image "ilegeul/debian:8-gnuarm-mingw-v2"
+    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
 fi
 
 # ----- Build the Debian 64-bits distribution. -----
@@ -1815,7 +1847,7 @@ then
   do_host_build_target "Creating Debian 64-bits archive..." \
     --target-name debian \
     --target-bits 64 \
-    --docker-image "ilegeul/debian:8-gnuarm-gcc-x11-v4"
+    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
 fi
 
 # ----- Build the Debian 32-bits distribution. -----
@@ -1825,7 +1857,7 @@ then
   do_host_build_target "Creating Debian 32-bits archive..." \
     --target-name debian \
     --target-bits 32 \
-    --docker-image "ilegeul/debian32:8-gnuarm-gcc-x11-v4"
+    --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse"
 fi
 
 do_host_show_sha

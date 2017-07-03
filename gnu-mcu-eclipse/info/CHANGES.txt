@@ -1,6 +1,10 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2017-07-03]
+
+- update build script to use Debian 9 Docker containers
+
 [2017-06-22]
 
 - v0.10.0-2-20170622-1535-dev released

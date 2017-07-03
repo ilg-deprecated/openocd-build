@@ -139,7 +139,7 @@ SetOutPath "$INSTDIR\license"
 File /r "${INSTALL_FOLDER}\licenses\*"
 
 SetOutPath "$INSTDIR"
-File "${INSTALL_FOLDER}\INFO.txt"
+File "${INSTALL_FOLDER}\README.md"
 
 SetOutPath "$INSTDIR\gnu-mcu-eclipse"
 File "${INSTALL_FOLDER}\gnu-mcu-eclipse\*"
