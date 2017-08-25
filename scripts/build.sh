@@ -91,6 +91,7 @@ DO_BUILD_OSX=""
 helper_script_path=""
 do_no_strip=""
 do_no_pdf=""
+do_develop=""
 
 while [ $# -gt 0 ]
 do
@@ -143,6 +144,11 @@ do
 
     --no-pdf)
       do_no_pdf="y"
+      shift
+      ;;
+
+    --develop)
+      do_develop="y"
       shift
       ;;
 
