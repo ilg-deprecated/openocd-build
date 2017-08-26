@@ -92,6 +92,7 @@ helper_script_path=""
 do_no_strip=""
 do_no_pdf=""
 jobs=""
+do_develop=""
 
 while [ $# -gt 0 ]
 do
@@ -150,6 +151,11 @@ do
     --jobs)
       jobs="--jobs=$2"
       shift 2
+      ;;
+
+    --develop)
+      do_develop="y"
+      shift
       ;;
 
     --help)
@@ -964,13 +970,13 @@ then
 
   if [ "${target_name}" == "win" ]
   then
-    CFLAGS="-Wno-format -Werror -m${target_bits} -pipe" \
+    CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --host="${cross_compile_prefix}" \
       --prefix="${install_folder}"
   else
-    CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -Werror -m${target_bits} -pipe" \
+    CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --prefix="${install_folder}"
@@ -1814,50 +1820,50 @@ if [ "${HOST_UNAME}" == "Darwin" ]
 then
   if [ "${DO_BUILD_OSX}" == "y" ]
   then
-    do_host_build_target "Creating OS X archive & package..." \
+    do_host_build_target "Creating the OS X distribution..." \
       --target-name osx
   fi
-fi
-
-# ----- Build the Windows 64-bits distribution. -----
-
-if [ "${DO_BUILD_WIN64}" == "y" ]
-then
-  do_host_build_target "Creating Windows 64-bits archive & setup..." \
-    --target-name win \
-    --target-bits 64 \
-    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
-fi
-
-# ----- Build the Windows 32-bits distribution. -----
-
-if [ "${DO_BUILD_WIN32}" == "y" ]
-then
-  # Debian 9 not yet functional :-(
-  do_host_build_target "Creating Windows 32-bits archive & setup..." \
-    --target-name win \
-    --target-bits 32 \
-    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
 fi
 
 # ----- Build the Debian 64-bits distribution. -----
 
 if [ "${DO_BUILD_DEB64}" == "y" ]
 then
-  do_host_build_target "Creating Debian 64-bits archive..." \
+  do_host_build_target "Creating the Debian 64-bits distribution..." \
     --target-name debian \
     --target-bits 64 \
     --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
+fi
+
+# ----- Build the Windows 64-bits distribution. -----
+
+if [ "${DO_BUILD_WIN64}" == "y" ]
+then
+  do_host_build_target "Creating the Windows 64-bits distribution..." \
+    --target-name win \
+    --target-bits 64 \
+    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
 fi
 
 # ----- Build the Debian 32-bits distribution. -----
 
 if [ "${DO_BUILD_DEB32}" == "y" ]
 then
-  do_host_build_target "Creating Debian 32-bits archive..." \
+  do_host_build_target "Creating the Debian 32-bits distribution..." \
     --target-name debian \
     --target-bits 32 \
     --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse"
+fi
+
+# ----- Build the Windows 32-bits distribution. -----
+
+# Since the actual container is a 32-bits, use the debian32 binaries.
+if [ "${DO_BUILD_WIN32}" == "y" ]
+then
+  do_host_build_target "Creating the Windows 32-bits distribution..." \
+    --target-name win \
+    --target-bits 32 \
+    --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse" 
 fi
 
 do_host_show_sha
