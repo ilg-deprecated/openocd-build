@@ -1,6 +1,12 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2017-08-25]
+
+- v0.10.0-3-20170826-*-dev released
+- merge RISC-V tag v20170818
+- server.c: fix clang warning in getsockname()
+
 [2017-07-03]
 
 - update build script to use Debian 9 Docker containers
