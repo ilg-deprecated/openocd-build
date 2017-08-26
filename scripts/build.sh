@@ -971,13 +971,13 @@ then
 
   if [ "${target_name}" == "win" ]
   then
-    CFLAGS="-Wno-non-literal-null-conversion -Werror -m${target_bits} -pipe" \
+    CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --host="${cross_compile_prefix}" \
       --prefix="${install_folder}"
   else
-    CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -Werror -m${target_bits} -pipe" \
+    CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --prefix="${install_folder}"
