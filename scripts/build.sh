@@ -1727,8 +1727,11 @@ then
 
   if [ "${target_name}" == "win" ]
   then
+    # Copy the LICENSE to be used by nsis.
+    /usr/bin/install -v -c -m 644 "${git_folder_path}/LICENSE" "${install_folder}/${APP_LC_NAME}/licenses"
+
     # For Windows, process cr lf
-    find "${install_folder}/${APP_LC_NAME}/license" -type f \
+    find "${install_folder}/${APP_LC_NAME}/licenses" -type f \
       -exec unix2dos {} \;
   fi
 
