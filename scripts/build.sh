@@ -1251,7 +1251,7 @@ then
     elif [ ${target_bits} == "32" ] 
     then
       cp /usr/include/libudev.h "${install_folder}/include"
-      cp /usr/lib/i386-linux-gnu/libudev.so  "${install_folder}/lib"
+      cp /lib/i386-linux-gnu/libudev.so  "${install_folder}/lib"
       cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
     fi
 
