@@ -773,8 +773,8 @@ rm -f "${script_file_path}"
 mkdir -p "$(dirname ${script_file_path})"
 touch "${script_file_path}"
 
-# Note: EOF is quoted to prevent substitutions here.
-cat <<'EOF' >> "${script_file_path}"
+# Note: __EOF__ is quoted to prevent substitutions here.
+cat <<'__EOF__' >> "${script_file_path}"
 #!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
@@ -796,11 +796,11 @@ IFS=$'\n\t'
 
 # -----------------------------------------------------------------------------
 
-EOF
+__EOF__
 # The above marker must start in the first column.
 
-# Note: EOF is not quoted to allow local substitutions.
-cat <<EOF >> "${script_file_path}"
+# Note: __EOF__ is not quoted to allow local substitutions.
+cat <<__EOF__ >> "${script_file_path}"
 
 APP_NAME="${APP_NAME}"
 APP_LC_NAME="${APP_LC_NAME}"
@@ -823,7 +823,7 @@ HIDAPI="${HIDAPI}"
 do_no_strip="${do_no_strip}"
 jobs="${jobs}"
 
-EOF
+__EOF__
 # The above marker must start in the first column.
 
 # Propagate DEBUG to guest.
@@ -835,8 +835,8 @@ then
 fi
 set -u
 
-# Note: EOF is quoted to prevent substitutions here.
-cat <<'EOF' >> "${script_file_path}"
+# Note: __EOF__ is quoted to prevent substitutions here.
+cat <<'__EOF__' >> "${script_file_path}"
 
 PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR:-""}
 
@@ -1854,7 +1854,7 @@ do_container_completed
 
 exit 0
 
-EOF
+__EOF__
 # The above marker must start in the first column.
 # ^===========================================================================^
 
