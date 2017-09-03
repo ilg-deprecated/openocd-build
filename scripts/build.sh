@@ -423,6 +423,7 @@ fi
 
 # ----- Check some more prerequisites. -----
 
+# Used by bootstrap.
 echo
 echo "Checking host automake..."
 automake --version 2>/dev/null | grep automake
@@ -439,34 +440,50 @@ echo
 echo "Checking host unzip..."
 unzip | grep UnZip
 
-echo
-echo "Checking host makeinfo..."
-makeinfo --version | grep 'GNU texinfo'
-makeinfo_ver=$(makeinfo --version | grep 'GNU texinfo' | sed -e 's/.*) //' -e 's/\..*//')
-if [ "${makeinfo_ver}" -lt "6" ]
+if [ "${HOST_UNAME}" == "Darwin" ]
 then
-  echo "makeinfo too old, abort."
-  exit 1
-fi
 
-if which libtoolize > /dev/null; then
-    libtoolize="libtoolize"
-elif which glibtoolize >/dev/null; then
-    libtoolize="glibtoolize"
-else
-    echo "$0: Error: libtool is required" >&2
+  echo
+  echo "Checking host makeinfo..."
+  makeinfo --version | grep 'GNU texinfo'
+  makeinfo_ver=$(makeinfo --version | grep 'GNU texinfo' | sed -e 's/.*) //' -e 's/\..*//')
+  if [ "${makeinfo_ver}" -lt "6" ]
+  then
+    echo "makeinfo too old, abort."
     exit 1
+  fi
+
+  if which libtoolize > /dev/null; then
+      libtoolize="libtoolize"
+  elif which glibtoolize >/dev/null; then
+      libtoolize="glibtoolize"
+  else
+      echo "$0: Error: libtool is required" >&2
+      exit 1
+  fi
+
 fi
 
 # ----- Get the project git repository. -----
 
-if [ ! -d "${PROJECT_GIT_FOLDER_PATH}" ]
+if [ -d "${PROJECT_GIT_DOWNLOADS_FOLDER_PATH}" ]
 then
 
-  cd "${WORK_FOLDER_PATH}"
+  # If the folder is already present in Downloads, copy it.
+  echo "Copying ${PROJECT_GIT_FOLDER_NAME} from Downloads..."
+  cp -r "${PROJECT_GIT_DOWNLOADS_FOLDER_PATH}" "${PROJECT_GIT_FOLDER_PATH}"
 
-  echo "If asked, enter ${USER} GitHub password for git clone"
-  git clone "${PROEJCT_GIT_URL}" "${PROJECT_GIT_FOLDER_PATH}"
+else
+
+  if [ ! -d "${PROJECT_GIT_FOLDER_PATH}" ]
+  then
+
+    cd "${WORK_FOLDER_PATH}"
+
+    echo "If asked, enter ${USER} GitHub password for git clone"
+    git clone "${PROJECT_GIT_URL}" "${PROJECT_GIT_FOLDER_PATH}"
+
+  fi
 
 fi
 
