@@ -42,13 +42,32 @@ IFS=$'\n\t'
 #
 # To resume a crashed build with the same timestamp, set
 # DISTRIBUTION_FILE_DATE='yyyymmdd-HHMM' in the environment.
+#
+# To build in a custom folder, set WORK_FOLDER_PATH='xyz' 
+# in the environment.
+#
+# Configuration environment variables:
+#
+# - WORK_FOLDER_PATH
+# - DISTRIBUTION_FILE_DATE
+# - APP_NAME
+# - APP_UC_NAME
+# - APP_LC_NAME
+# - BUILD_FOLDER_PATH
+# - DOWNLOAD_FOLDER_PATH
+# - DEPLOY_FOLDER_NAME
+#
+
+# -----------------------------------------------------------------------------
 
 # Mandatory definition.
-APP_NAME="OpenOCD"
+APP_NAME=${APP_NAME:-"OpenOCD"}
 
 # Used as part of file/folder paths.
-APP_UC_NAME="OpenOCD"
-APP_LC_NAME="openocd"
+APP_UC_NAME=${APP_UC_NAME:-"OpenOCD"}
+APP_LC_NAME=${APP_LC_NAME:-"openocd"}
+
+jobs=""
 
 # On Parallels virtual machines, prefer host Work folder.
 # Second choice are Work folders on secondary disks.
@@ -67,10 +86,21 @@ else
   WORK_FOLDER_PATH=${WORK_FOLDER_PATH:-"${HOME}/Work/${APP_LC_NAME}"}
 fi
 
-BUILD_FOLDER_PATH="${WORK_FOLDER_PATH}/build"
+# ----- Define build constants. -----
+
+BUILD_FOLDER_NAME=${BUILD_FOLDER_NAME:-"build"}
+BUILD_FOLDER_PATH=${BUILD_FOLDER_PATH:-"${WORK_FOLDER_PATH}/${BUILD_FOLDER_NAME}"}
+
+DOWNLOAD_FOLDER_NAME=${DOWNLOAD_FOLDER_NAME:-"download"}
+DOWNLOAD_FOLDER_PATH=${DOWNLOAD_FOLDER_PATH:-"${WORK_FOLDER_PATH}/${DOWNLOAD_FOLDER_NAME}"}
+DEPLOY_FOLDER_NAME=${DEPLOY_FOLDER_NAME:-"deploy"}
+
+
+# ----- Define build Git constants. -----
 
 PROJECT_GIT_FOLDER_NAME="openocd-build.git"
 PROJECT_GIT_FOLDER_PATH="${WORK_FOLDER_PATH}/${PROJECT_GIT_FOLDER_NAME}"
+PROJECT_GIT_DOWNLOADS_FOLDER_PATH="${HOME}/Downloads/${PROJECT_GIT_FOLDER_NAME}"
 PROEJCT_GIT_URL="https://github.com/gnu-mcu-eclipse/${PROJECT_GIT_FOLDER_NAME}"
 
 # ----- Create Work folder. -----
@@ -288,10 +318,6 @@ HIDAPI_FOLDER="hidapi-hidapi-${HIDAPI_VERSION}"
 HIDAPI="hidapi-${HIDAPI_VERSION}"
 HIDAPI_ARCHIVE="${HIDAPI}.zip"
 
-# ----- Define build constants. -----
-
-DOWNLOAD_FOLDER_PATH="${WORK_FOLDER_PATH}/download"
-DEPLOY_FOLDER_NAME="deploy"
 
 # ----- Process actions. -----
 
