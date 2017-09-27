@@ -273,6 +273,10 @@ OPENOCD_GIT_BRANCH="gnu-mcu-eclipse"
 OPENOCD_GIT_BRANCH_DEV="gnu-mcu-eclipse-dev"
 OPENOCD_GIT_COMMIT="HEAD"
 
+# Since some of the original URLs are occasionaly unavailable,
+# the archives were re-published in a dedicated GitHub project:
+# https://github.com/gnu-mcu-eclipse/files.
+
 # https://sourceforge.net/projects/libusb/files/libusb-1.0/
 # 1.0.20 from 2015-09-14
 LIBUSB1_VERSION="1.0.20"
