@@ -279,7 +279,8 @@ LIBUSB1_VERSION="1.0.20"
 LIBUSB1_FOLDER="libusb-${LIBUSB1_VERSION}"
 LIBUSB1="${LIBUSB1_FOLDER}"
 LIBUSB1_ARCHIVE="${LIBUSB1}.tar.bz2"
-
+# LIBUSB1_URL="http://sourceforge.net/projects/libusb/files/libusb-1.0/${LIBUSB1_FOLDER}/${LIBUSB1_ARCHIVE}"
+LIBUSB1_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${LIBUSB1_ARCHIVE}"
 
 # https://sourceforge.net/projects/libusb/files/libusb-compat-0.1/
 # 0.1.5 from 2013-05-21
@@ -287,7 +288,8 @@ LIBUSB0_VERSION="0.1.5"
 LIBUSB0_FOLDER="libusb-compat-${LIBUSB0_VERSION}"
 LIBUSB0="${LIBUSB0_FOLDER}"
 LIBUSB0_ARCHIVE="${LIBUSB0_FOLDER}.tar.bz2"
-
+# LIBUSB0_URL="http://sourceforge.net/projects/libusb/files/libusb-compat-0.1/${LIBUSB0_FOLDER}/${LIBUSB0_ARCHIVE}"
+LIBUSB0_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${LIBUSB0_ARCHIVE}"
 
 # https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/
 # 1.2.6.0 from 2012-01-17
@@ -296,7 +298,8 @@ LIBUSB_W32_VERSION="1.2.6.0"
 LIBUSB_W32="${LIBUSB_W32_PREFIX}-${LIBUSB_W32_VERSION}"
 LIBUSB_W32_FOLDER="${LIBUSB_W32_PREFIX}-src-${LIBUSB_W32_VERSION}"
 LIBUSB_W32_ARCHIVE="${LIBUSB_W32_FOLDER}.zip"
-
+# LIBUSB_W32_URL="http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/${LIBUSB_W32_VERSION}/${LIBUSB_W32_ARCHIVE}"
+LIBUSB_W32_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${LIBUSB_W32_ARCHIVE}"
 
 # http://www.intra2net.com/en/developer/libftdi/download.php
 # 1.2 (no date)
@@ -304,7 +307,8 @@ LIBFTDI_VERSION="1.2"
 LIBFTDI_FOLDER="libftdi1-${LIBFTDI_VERSION}"
 LIBFTDI_ARCHIVE="${LIBFTDI_FOLDER}.tar.bz2"
 LIBFTDI="${LIBFTDI_FOLDER}"
-
+# LIBFTDI_URL="http://www.intra2net.com/en/developer/libftdi/download/${LIBFTDI_ARCHIVE}"
+LIBFTDI_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${LIBFTDI_ARCHIVE}"
 
 # https://github.com/signal11/hidapi/downloads
 # Oct 26, 2011
@@ -317,7 +321,8 @@ HIDAPI_VERSION="0.8.0-rc1"
 HIDAPI_FOLDER="hidapi-hidapi-${HIDAPI_VERSION}"
 HIDAPI="hidapi-${HIDAPI_VERSION}"
 HIDAPI_ARCHIVE="${HIDAPI}.zip"
-
+# HIDAPI_URL="https://github.com/signal11/hidapi/archive/${HIDAPI_ARCHIVE}"
+HIDAPI_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${HIDAPI_ARCHIVE}"
 
 # ----- Process actions. -----
 
@@ -645,8 +650,7 @@ then
   echo "Downloading \"${LIBUSB1_ARCHIVE}\"..."
 
   cd "${DOWNLOAD_FOLDER_PATH}"
-  curl -L "http://sourceforge.net/projects/libusb/files/libusb-1.0/${LIBUSB1_FOLDER}/${LIBUSB1_ARCHIVE}" \
-    --output "${LIBUSB1_ARCHIVE}"
+  curl -L "${LIBUSB1_URL}" --output "${LIBUSB1_ARCHIVE}"
 fi
 
 # Unpack the new USB library.
@@ -667,8 +671,7 @@ then
   echo "Downloading \"${LIBUSB0_ARCHIVE}\"..."
 
   cd "${DOWNLOAD_FOLDER_PATH}"
-  curl -L "http://sourceforge.net/projects/libusb/files/libusb-compat-0.1/${LIBUSB0_FOLDER}/${LIBUSB0_ARCHIVE}" \
-    --output "${LIBUSB0_ARCHIVE}"
+  curl -L "${LIBUSB0_URL}" --output "${LIBUSB0_ARCHIVE}"
 fi
 
 # Unpack the old USB library.
@@ -689,7 +692,7 @@ then
   echo "Downloading \"${LIBUSB_W32_ARCHIVE}\"..."
 
   cd "${DOWNLOAD_FOLDER_PATH}"
-  curl -L "http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/${LIBUSB_W32_VERSION}/${LIBUSB_W32_ARCHIVE}" \
+  curl -L "${LIBUSB_W32_URL}" \
     --output "${LIBUSB_W32_ARCHIVE}"
 fi
 
@@ -716,8 +719,7 @@ then
   echo "Downloading \"${LIBFTDI_ARCHIVE}\"..."
 
   cd "${DOWNLOAD_FOLDER_PATH}"
-  curl -L "http://www.intra2net.com/en/developer/libftdi/download/${LIBFTDI_ARCHIVE}" \
-    --output "${LIBFTDI_ARCHIVE}"
+  curl -L "${LIBFTDI_URL}" --output "${LIBFTDI_ARCHIVE}"
 fi
 
 # Unpack the FTDI library.
@@ -753,8 +755,7 @@ then
 
   # https://github.com/downloads/signal11/hidapi
   # https://github.com/signal11/hidapi/archive/
-  curl -L "https://github.com/signal11/hidapi/archive//${HIDAPI_ARCHIVE}" \
-    --output "${HIDAPI_ARCHIVE}"
+  curl -L "${HIDAPI_URL}" --output "${HIDAPI_ARCHIVE}"
 fi
 
 # Unpack the HDI library.
