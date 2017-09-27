@@ -692,8 +692,7 @@ then
   echo "Downloading \"${LIBUSB_W32_ARCHIVE}\"..."
 
   cd "${DOWNLOAD_FOLDER_PATH}"
-  curl -L "${LIBUSB_W32_URL}" \
-    --output "${LIBUSB_W32_ARCHIVE}"
+  curl -L "${LIBUSB_W32_URL}" --output "${LIBUSB_W32_ARCHIVE}"
 fi
 
 # Unpack the old Win32 USB library.
