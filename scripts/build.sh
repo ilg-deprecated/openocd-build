@@ -1908,13 +1908,13 @@ fi
 
 # ----- Build the Windows 32-bits distribution. -----
 
-# Since the actual container is a 32-bits, use the debian32 binaries.
+# Use the debian64 container.
 if [ "${DO_BUILD_WIN32}" == "y" ]
 then
   do_host_build_target "Creating the Windows 32-bits distribution..." \
     --target-name win \
     --target-bits 32 \
-    --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse" 
+    --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
 fi
 
 do_host_show_sha
