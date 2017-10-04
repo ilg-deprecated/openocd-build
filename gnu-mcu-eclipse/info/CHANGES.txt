@@ -1,6 +1,13 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2017-10-04]
+
+- v0.10.0-4-20171004-*-dev released
+- update to master from Aug 10
+- update to riscv fom Oct 2
+- gdb_server.c: workaround to gdb errors; disable passing errors back to gdb since this risc-v change breaks other targets.
+
 [2017-08-25]
 
 - v0.10.0-3-20170826-*-dev released
