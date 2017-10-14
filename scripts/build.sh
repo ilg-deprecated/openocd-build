@@ -835,6 +835,10 @@ do
       host_uname="$2"
       shift 2
       ;;
+    --target-distribution)
+      target_distribution="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option $1, exit."
       exit 1
@@ -912,7 +916,7 @@ else
   gcc --version 2>/dev/null | egrep -e 'gcc|clang'
 fi
 
-if [ "${target_name}" == "debian" ]
+if [ "${target_name}" == "linux" ]
 then
   echo "Checking patchelf..."
   patchelf --version
@@ -1172,7 +1176,7 @@ elif [ "${target_name}" == "osx" ]
 then
   HIDAPI_TARGET="mac"
   HIDAPI_A="libhidapi.a"
-elif [ "${target_name}" == "debian" ]
+elif [ "${target_name}" == "linux" ]
 then
   HIDAPI_TARGET="linux"
   HIDAPI_A="libhidapi-hidraw.a"
@@ -1222,7 +1226,7 @@ then
     cp -v "${work_folder_path}/${HIDAPI_FOLDER}/hidapi/hidapi.h" \
       "${install_folder}/include/hidapi"
 
-  elif [ "${target_name}" == "debian" ]
+  elif [ "${target_name}" == "linux" ]
   then
 
     if [ "${target_bits}" == "64" ]
@@ -1384,7 +1388,7 @@ then
     | tee "${output_folder_path}/configure-output.txt"
     # Note: don't forget to update the INFO.txt file after changing these.
 
-  elif [ "${target_name}" == "debian" ]
+  elif [ "${target_name}" == "linux" ]
   then
 
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-""}
@@ -1632,7 +1636,7 @@ then
       ${cross_compile_prefix}-strip "${install_folder}/${APP_LC_NAME}/bin/"*.dll
     fi
 
-  elif [ "${target_name}" == "debian" ]
+  elif [ "${target_name}" == "linux" ]
   then
 
     if [ -z "${do_no_strip}" ]
