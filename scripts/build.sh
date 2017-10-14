@@ -39,6 +39,13 @@ IFS=$'\n\t'
 #
 # When running on OS X, a custom Homebrew is required to provide the 
 # missing libraries and TeX binaries.
+# 
+# Without specifying a --xxx platform option, builds are assumed
+# to be native on the GNU/Linux or macOS host.
+# In this case all prerequisites must be met by the host. For example 
+# for Ubuntu the following were needed:
+#
+# $ apt-get install -y automake cmake libtool libudev-dev patchelf
 #
 # To resume a crashed build with the same timestamp, set
 # DISTRIBUTION_FILE_DATE='yyyymmdd-HHMM' in the environment.
