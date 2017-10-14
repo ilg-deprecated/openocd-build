@@ -191,7 +191,7 @@ do
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--deb32] [--deb64] [--osx] [--all] [clean|cleanall|pull|checkout-dev|checkout-stable|build-images] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--deb32] [--deb64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--help]"
       echo
       exit 1
       ;;
@@ -523,88 +523,6 @@ else
   fi
 
 fi
-
-# ----- Process "pull|checkout-dev|checkout-stable" actions. -----
-
-do_repo_action() {
-
-  # $1 = action (pull, checkout-dev, checkout-stable)
-
-  # Update current branch and prepare autotools.
-  echo
-  if [ "${ACTION}" == "pull" ]
-  then
-    echo "Running git pull..."
-  elif [ "${ACTION}" == "checkout-dev" ]
-  then
-    echo "Running git checkout gnu-mcu-eclipse-dev & pull..."
-  elif [ "${ACTION}" == "checkout-stable" ]
-  then
-    echo "Running git checkout gnu-mcu-eclipse & pull..."
-  fi
-
-  if [ -d "${PROJECT_GIT_FOLDER_PATH}" ]
-  then
-    echo
-    if [ "${USER}" == "ilg" ]
-    then
-      echo "If asked, enter ${USER} GitHub password for git pull"
-    fi
-
-    cd "${PROJECT_GIT_FOLDER_PATH}"
-
-    if [ "${ACTION}" == "checkout-dev" ]
-    then
-      git checkout gnu-mcu-eclipse-dev
-    elif [ "${ACTION}" == "checkout-stable" ]
-    then
-      git checkout gnu-mcu-eclipse
-    fi
-
-    if false
-    then
-
-      git pull --recurse-submodules
-      git submodule update --init --recursive --remote
-
-      git branch
-
-      do_host_bootstrap
-
-      rm -rf "${BUILD_FOLDER_PATH}/${APP_LC_NAME}"
-
-      echo
-      if [ "${ACTION}" == "pull" ]
-      then
-        echo "Pull completed. Proceed with a regular build."
-      else
-        echo "Checkout completed. Proceed with a regular build."
-      fi
-
-    else
-
-      echo "Not implemented."
-      exit 1
-
-    fi
-
-    exit 0
-  else
-	echo "No git folder."
-    exit 1
-  fi
-
-}
-
-# For this to work, the following settings are required:
-# git branch --set-upstream-to=origin/gnu-mcu-eclipse-dev gnu-mcu-eclipse-dev
-# git branch --set-upstream-to=origin/gnu-mcu-eclipse gnu-mcu-eclipse
-
-case "${ACTION}" in
-  pull|checkout-dev|checkout-stable)
-    do_repo_action "${ACTION}"
-    ;;
-esac
 
 # ----- Get the current Git branch name. -----
 
