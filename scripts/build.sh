@@ -1787,7 +1787,6 @@ __EOF__
 if [ -z "${DO_BUILD_OSX}${DO_BUILD_DEB64}${DO_BUILD_WIN64}${DO_BUILD_DEB32}${DO_BUILD_WIN32}" ]
 then
 
-  # ----- Build the native distribution. -----
   do_host_build_target "Creating the native distribution..." 
 
 else
@@ -1796,7 +1795,6 @@ else
   then
     if [ "${HOST_UNAME}" == "Darwin" ]
     then
-      # ----- Build the OS X distribution. -----
       do_host_build_target "Creating the OS X distribution..." \
         --target-name osx
     else
