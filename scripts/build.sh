@@ -135,7 +135,7 @@ while [ $# -gt 0 ]
 do
   case "$1" in
 
-    clean|cleanall|pull|checkout-dev|checkout-stable|build-images|preload-images|bootstrap)
+    clean|cleanall|build-images|preload-images|bootstrap)
       ACTION="$1"
       shift
       ;;
@@ -198,7 +198,7 @@ do
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--deb32] [--deb64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--deb32] [--deb64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--no-pdf] [--develop] [--help]"
       echo
       exit 1
       ;;
