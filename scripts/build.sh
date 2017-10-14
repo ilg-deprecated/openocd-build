@@ -1534,6 +1534,11 @@ then
     | tee "${output_folder_path}/configure-output.txt"
     # Note: don't forget to update the INFO.txt file after changing these.
 
+  else
+
+    echo "Unsupported target name ${target_name}."
+    exit 1
+
   fi
 
   cd "${build_folder_path}/${APP_LC_NAME}"
