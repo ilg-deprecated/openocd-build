@@ -752,6 +752,7 @@ HIDAPI_FOLDER="${HIDAPI_FOLDER}"
 HIDAPI="${HIDAPI}"
 
 do_no_strip="${do_no_strip}"
+do_no_pdf="${do_no_pdf}"
 jobs="${jobs}"
 
 __EOF__
@@ -1564,10 +1565,8 @@ then
   (
     cd "${build_folder_path}/${APP_LC_NAME}"
     make ${jobs} bindir="bin" pkgdatadir=""
-    if [ "${do_no_pdf}" == "y" ]
+    if [ -z "${do_no_pdf}" ]
     then
-      make ${jobs} bindir="bin" pkgdatadir="" html 
-    else
       make ${jobs} bindir="bin" pkgdatadir="" pdf html 
     fi
   ) | tee "${output_folder_path}/make-all-output.txt"
@@ -1578,10 +1577,8 @@ then
   (
     cd "${build_folder_path}/${APP_LC_NAME}"
     make ${jobs} install  
-    if [ "${do_no_pdf}" == "y" ]
+    if [ -z "${do_no_pdf}" ]
     then
-      make ${jobs} install-html install-man
-    else
       make ${jobs} install-pdf install-html install-man
     fi
   )  | tee "${output_folder_path}/make-install-output.txt"
