@@ -122,8 +122,8 @@ mkdir -p "${WORK_FOLDER_PATH}"
 ACTION=""
 DO_BUILD_WIN32=""
 DO_BUILD_WIN64=""
-DO_BUILD_DEB32=""
-DO_BUILD_DEB64=""
+DO_BUILD_LINUX32=""
+DO_BUILD_LINUX64=""
 DO_BUILD_OSX=""
 helper_script_path=""
 do_no_strip=""
@@ -148,12 +148,12 @@ do
       DO_BUILD_WIN64="y"
       shift
       ;;
-    --deb32|--debian32)
-      DO_BUILD_DEB32="y"
+    --linux32|--deb32|--debian32)
+      DO_BUILD_LINUX32="y"
       shift
       ;;
-    --deb64|--debian64)
-      DO_BUILD_DEB64="y"
+    --linux64|--deb64|--debian64)
+      DO_BUILD_LINUX64="y"
       shift
       ;;
     --osx)
@@ -164,8 +164,8 @@ do
     --all)
       DO_BUILD_WIN32="y"
       DO_BUILD_WIN64="y"
-      DO_BUILD_DEB32="y"
-      DO_BUILD_DEB64="y"
+      DO_BUILD_LINUX32="y"
+      DO_BUILD_LINUX64="y"
       DO_BUILD_OSX="y"
       shift
       ;;
@@ -198,7 +198,7 @@ do
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--deb32] [--deb64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--no-pdf] [--develop] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--no-pdf] [--develop] [--help]"
       echo
       exit 1
       ;;
@@ -458,7 +458,7 @@ fi
 
 # ----- Prepare Docker, if needed. -----
 
-if [ -n "${DO_BUILD_WIN32}${DO_BUILD_WIN64}${DO_BUILD_DEB32}${DO_BUILD_DEB64}" ]
+if [ -n "${DO_BUILD_WIN32}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_LINUX64}" ]
 then
   do_host_prepare_docker
 fi
@@ -783,16 +783,24 @@ docker_container_name=""
 while [ $# -gt 0 ]
 do
   case "$1" in
-    --build-folder)
-      build_folder_path="$2"
+    --container-build-folder)
+      container_build_folder_path="$2"
+      shift 2
+      ;;
+    --container-install-folder)
+      container_install_folder_path="$2"
+      shift 2
+      ;;
+    --container-output-folder)
+      container_output_folder_path="$2"
       shift 2
       ;;
     --docker-container-name)
       docker_container_name="$2"
       shift 2
       ;;
-    --target-name)
-      target_name="$2"
+    --target-os)
+      target_os="$2"
       shift 2
       ;;
     --target-bits)
@@ -803,16 +811,8 @@ do
       work_folder_path="$2"
       shift 2
       ;;
-    --output-folder)
-      output_folder_path="$2"
-      shift 2
-      ;;
     --distribution-folder)
       distribution_folder="$2"
-      shift 2
-      ;;
-    --install-folder)
-      install_folder="$2"
       shift 2
       ;;
     --download-folder)
@@ -835,10 +835,6 @@ do
       host_uname="$2"
       shift 2
       ;;
-    --target-distribution)
-      target_distribution="$2"
-      shift 2
-      ;;
     *)
       echo "Unknown option $1, exit."
       exit 1
@@ -853,26 +849,7 @@ uname -a
 # Run the helper script in this shell, to get the support functions.
 source "${helper_script_path}"
 
-target_folder=${target_distribution}${target_bits:-""}
-
-if [ "${target_name}" == "win" ]
-then
-
-  # For Windows targets, decide which cross toolchain to use.
-  if [ "${target_bits}" == "32" ]
-  then
-    cross_compile_prefix="i686-w64-mingw32"
-  elif [ "${target_bits}" == "64" ]
-  then
-    cross_compile_prefix="x86_64-w64-mingw32"
-  fi
-
-elif [ "${target_name}" == "osx" ]
-then
-
-  target_bits="64"
-
-fi
+do_container_detect
 
 mkdir -p "${build_folder_path}"
 cd "${build_folder_path}"
@@ -889,13 +866,13 @@ cmake --version | grep cmake
 echo "Checking pkg-config..."
 pkg-config --version
 
-if [ "${target_name}" != "osx" ]
+if [ "${target_os}" != "osx" ]
 then
   echo "Checking readelf..."
   readelf --version | grep readelf
 fi
 
-if [ "${target_name}" == "win" ]
+if [ "${target_os}" == "win" ]
 then
   echo "Checking ${cross_compile_prefix}-gcc..."
   ${cross_compile_prefix}-gcc --version 2>/dev/null | egrep -e 'gcc|clang'
@@ -916,7 +893,7 @@ else
   gcc --version 2>/dev/null | egrep -e 'gcc|clang'
 fi
 
-if [ "${target_name}" == "linux" ]
+if [ "${target_os}" == "linux" ]
 then
   echo "Checking patchelf..."
   patchelf --version
@@ -949,7 +926,7 @@ then
 
   cd "${build_folder_path}/${LIBUSB1_FOLDER}"
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
     CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
@@ -971,7 +948,7 @@ then
   make ${jobs}
   make ${jobs} install
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
     # Remove DLLs to force static link for final executable.
     rm -f "${install_folder}/bin/libusb-1.0.dll"
@@ -986,10 +963,10 @@ fi
 
 libusb0_stamp_file="${build_folder_path}/${LIBUSB0_FOLDER}/stamp-install-completed"
 
-# if [ \( "${target_name}" != "win" \) -a \
+# if [ \( "${target_os}" != "win" \) -a \
 #     ! \( -f "${install_folder}/lib/libusb.a" -o \
 #          -f "${install_folder}/lib64/libusb.a" \) ]
-if [ \( "${target_name}" != "win" \) -a \
+if [ \( "${target_os}" != "win" \) -a \
     ! \( -f "${libusb0_stamp_file}" \) ]
 then
 
@@ -1027,10 +1004,10 @@ fi
 
 libusb_w32_stamp_file="${build_folder_path}/${LIBUSB_W32}/stamp-install-completed"
 
-# if [ \( "${target_name}" == "win" \) -a \
+# if [ \( "${target_os}" == "win" \) -a \
 #      ! \( -f "${install_folder}/lib/libusb.a" -o \
 #           -f "${install_folder}/lib64/libusb.a" \)  ]
-if [ \( "${target_name}" == "win" \) -a \
+if [ \( "${target_os}" == "win" \) -a \
      ! \( -f "${libusb_w32_stamp_file}" \)  ]
 then
 
@@ -1098,7 +1075,7 @@ then
 
   cd "${build_folder_path}/${LIBFTDI_FOLDER}"
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
 
     # Configure.
@@ -1150,7 +1127,7 @@ then
   make ${jobs} 
   make ${jobs} install
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
     # Remove DLLs to force static link for final executable.
     rm -f "${install_folder}/bin/libftdi1.dll"
@@ -1167,16 +1144,16 @@ fi
 
 libhdi_stamp_file="${build_folder_path}/${HIDAPI_FOLDER}/stamp-install-completed"
 
-if [ "${target_name}" == "win" ]
+if [ "${target_os}" == "win" ]
 then
   HIDAPI_TARGET="windows"
   HIDAPI_OBJECT="hid.o"
   HIDAPI_A="libhid.a"
-elif [ "${target_name}" == "osx" ]
+elif [ "${target_os}" == "osx" ]
 then
   HIDAPI_TARGET="mac"
   HIDAPI_A="libhidapi.a"
-elif [ "${target_name}" == "linux" ]
+elif [ "${target_os}" == "linux" ]
 then
   HIDAPI_TARGET="linux"
   HIDAPI_A="libhidapi-hidraw.a"
@@ -1195,7 +1172,7 @@ then
   echo
   echo "Running libhid make..."
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
 
     cd "${build_folder_path}/${HIDAPI_FOLDER}/${HIDAPI_TARGET}"
@@ -1226,7 +1203,7 @@ then
     cp -v "${work_folder_path}/${HIDAPI_FOLDER}/hidapi/hidapi.h" \
       "${install_folder}/include/hidapi"
 
-  elif [ "${target_name}" == "linux" ]
+  elif [ "${target_os}" == "linux" ]
   then
 
     if [ "${target_bits}" == "64" ]
@@ -1273,7 +1250,7 @@ then
     make ${jobs} 
     make ${jobs} install
 
-  elif [ "${target_name}" == "osx" ]
+  elif [ "${target_os}" == "osx" ]
   then
 
     cd "${build_folder_path}/${HIDAPI_FOLDER}"
@@ -1311,7 +1288,7 @@ then
   # --enable-zy1000
   # --enable-legacy-ft2232_libftdi
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
 
     cd "${build_folder_path}/openocd"
@@ -1388,7 +1365,7 @@ then
     | tee "${output_folder_path}/configure-output.txt"
     # Note: don't forget to update the INFO.txt file after changing these.
 
-  elif [ "${target_name}" == "linux" ]
+  elif [ "${target_os}" == "linux" ]
   then
 
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-""}
@@ -1463,7 +1440,7 @@ then
     | tee "${output_folder_path}/configure-output.txt"
     # Note: don't forget to update the INFO.txt file after changing these.
 
-  elif [ "${target_name}" == "osx" ]
+  elif [ "${target_os}" == "osx" ]
   then
 
     DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH:-""}
@@ -1541,7 +1518,7 @@ then
 
   else
 
-    echo "Unsupported target name ${target_name}."
+    echo "Unsupported target os ${target_os}."
     exit 1
 
   fi
@@ -1598,7 +1575,7 @@ checking_stamp_file="${build_folder_path}/stamp_check_completed"
 if [ ! -f "${checking_stamp_file}" ]
 then
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
 
     if [ -z "${do_no_strip}" ]
@@ -1636,7 +1613,7 @@ then
       ${cross_compile_prefix}-strip "${install_folder}/${APP_LC_NAME}/bin/"*.dll
     fi
 
-  elif [ "${target_name}" == "linux" ]
+  elif [ "${target_os}" == "linux" ]
   then
 
     if [ -z "${do_no_strip}" ]
@@ -1682,7 +1659,7 @@ then
     do_container_linux_copy_system_so libudev
     do_container_linux_copy_librt_so
 
-  elif [ "${target_name}" == "osx" ]
+  elif [ "${target_os}" == "osx" ]
   then
 
     if [ -z "${do_no_strip}" ]
@@ -1739,14 +1716,14 @@ then
   do_container_copy_license "${work_folder_path}/${LIBFTDI_FOLDER}" "${LIBFTDI_FOLDER}"
   do_container_copy_license "${work_folder_path}/${LIBUSB1_FOLDER}" "${LIBUSB1_FOLDER}"
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
     do_container_copy_license "${work_folder_path}/${LIBUSB_W32_FOLDER}" "${LIBUSB_W32}"
   else
     do_container_copy_license "${work_folder_path}/${LIBUSB0_FOLDER}" "${LIBUSB0_FOLDER}"
   fi
 
-  if [ "${target_name}" == "win" ]
+  if [ "${target_os}" == "win" ]
   then
     # Copy the LICENSE to be used by nsis.
     /usr/bin/install -v -c -m 644 "${git_folder_path}/LICENSE" "${install_folder}/${APP_LC_NAME}/licenses"
@@ -1807,7 +1784,7 @@ __EOF__
 
 # ----- Build the native distribution. -----
 
-if [ -z "${DO_BUILD_OSX}${DO_BUILD_DEB64}${DO_BUILD_WIN64}${DO_BUILD_DEB32}${DO_BUILD_WIN32}" ]
+if [ -z "${DO_BUILD_OSX}${DO_BUILD_LINUX64}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_WIN32}" ]
 then
 
   do_host_build_target "Creating the native distribution..." 
@@ -1819,19 +1796,19 @@ else
     if [ "${HOST_UNAME}" == "Darwin" ]
     then
       do_host_build_target "Creating the OS X distribution..." \
-        --target-name osx
+        --target-os osx
     else
       echo "Building the macOS image is not possible on this platform."
       exit 1
     fi
   fi
 
-  # ----- Build the Debian 64-bits distribution. -----
+  # ----- Build the GNU/Linux 64-bits distribution. -----
 
-  if [ "${DO_BUILD_DEB64}" == "y" ]
+  if [ "${DO_BUILD_LINUX64}" == "y" ]
   then
-    do_host_build_target "Creating the Debian 64-bits distribution..." \
-      --target-name debian \
+    do_host_build_target "Creating the GNU/Linux 64-bits distribution..." \
+      --target-os linux \
       --target-bits 64 \
       --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
   fi
@@ -1841,17 +1818,17 @@ else
   if [ "${DO_BUILD_WIN64}" == "y" ]
   then
     do_host_build_target "Creating the Windows 64-bits distribution..." \
-      --target-name win \
+      --target-os win \
       --target-bits 64 \
       --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
   fi
 
-  # ----- Build the Debian 32-bits distribution. -----
+  # ----- Build the GNU/Linux 32-bits distribution. -----
 
-  if [ "${DO_BUILD_DEB32}" == "y" ]
+  if [ "${DO_BUILD_LINUX32}" == "y" ]
   then
-    do_host_build_target "Creating the Debian 32-bits distribution..." \
-      --target-name debian \
+    do_host_build_target "Creating the GNU/Linux 32-bits distribution..." \
+      --target-os linux \
       --target-bits 32 \
       --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse"
   fi
@@ -1862,7 +1839,7 @@ else
   if [ "${DO_BUILD_WIN32}" == "y" ]
   then
     do_host_build_target "Creating the Windows 32-bits distribution..." \
-      --target-name win \
+      --target-os win \
       --target-bits 32 \
       --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
   fi
