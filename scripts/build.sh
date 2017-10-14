@@ -853,7 +853,7 @@ uname -a
 # Run the helper script in this shell, to get the support functions.
 source "${helper_script_path}"
 
-target_folder=${target_name}${target_bits:-""}
+target_folder=${target_distribution}${target_bits:-""}
 
 if [ "${target_name}" == "win" ]
 then
