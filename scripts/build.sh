@@ -45,7 +45,7 @@ IFS=$'\n\t'
 # In this case all prerequisites must be met by the host. For example 
 # for Ubuntu the following were needed:
 #
-# $ apt-get install -y automake cmake libtool libudev-dev patchelf
+# $ apt-get install -y automake cmake libtool libudev-dev patchelf texinfo texlive
 #
 # To resume a crashed build with the same timestamp, set
 # DISTRIBUTION_FILE_DATE='yyyymmdd-HHMM' in the environment.
@@ -60,9 +60,15 @@ IFS=$'\n\t'
 # - APP_NAME
 # - APP_UC_NAME
 # - APP_LC_NAME
+# - BUILD_FOLDER_NAME
 # - BUILD_FOLDER_PATH
+# - DOWNLOAD_FOLDER_NAME
 # - DOWNLOAD_FOLDER_PATH
 # - DEPLOY_FOLDER_NAME
+# - OPENOCD_FOLDER_NAME
+# - OPENOCD_GIT_URL
+# - OPENOCD_GIT_BRANCH
+# - OPENOCD_GIT_COMMIT
 #
 
 # -----------------------------------------------------------------------------
@@ -275,10 +281,10 @@ source "${helper_script_path}"
 # Generally this branch follows the official OpenOCD master branch,
 # with updates after every OpenOCD public release.
 
-OPENOCD_FOLDER_NAME="openocd.git"
-OPENOCD_GIT_URL="https://github.com/gnu-mcu-eclipse/openocd.git"
-OPENOCD_GIT_BRANCH="gnu-mcu-eclipse"
-OPENOCD_GIT_BRANCH_DEV="gnu-mcu-eclipse-dev"
+OPENOCD_FOLDER_NAME="${OPENOCD_FOLDER_NAME:-openocd.git}"
+OPENOCD_GIT_URL="${OPENOCD_GIT_URL:-https://github.com/gnu-mcu-eclipse/openocd.git}"
+# OPENOCD_GIT_BRANCH="${OPENOCD_GIT_BRANCH:-gnu-mcu-eclipse}"
+OPENOCD_GIT_BRANCH="${OPENOCD_GIT_BRANCH:-gnu-mcu-eclipse-dev}"
 OPENOCD_GIT_COMMIT="HEAD"
 
 # Since some of the original URLs are occasionaly unavailable,
@@ -552,7 +558,9 @@ then
   echo "Cloning '${OPENOCD_GIT_URL}'..."
 
   cd "${WORK_FOLDER_PATH}"
-  git clone --branch "${OPENOCD_GIT_BRANCH_DEV}" "${OPENOCD_GIT_URL}" "${OPENOCD_FOLDER_NAME}"
+  git clone --branch "${OPENOCD_GIT_BRANCH}" "${OPENOCD_GIT_URL}" \
+    "${OPENOCD_FOLDER_NAME}"
+  
   cd "${OPENOCD_FOLDER_NAME}"
   git checkout -qf "${OPENOCD_GIT_COMMIT}"
 
@@ -797,69 +805,79 @@ do
       container_build_folder_path="$2"
       shift 2
       ;;
+
     --container-install-folder)
       container_install_folder_path="$2"
       shift 2
       ;;
+
     --container-output-folder)
       container_output_folder_path="$2"
       shift 2
       ;;
+
     --docker-container-name)
       docker_container_name="$2"
       shift 2
       ;;
+
     --target-os)
       target_os="$2"
       shift 2
       ;;
+
     --target-bits)
       target_bits="$2"
       shift 2
       ;;
+
     --work-folder)
       work_folder_path="$2"
       shift 2
       ;;
+
     --distribution-folder)
       distribution_folder="$2"
       shift 2
       ;;
+
     --download-folder)
       download_folder="$2"
       shift 2
       ;;
+
     --helper-script)
       helper_script_path="$2"
       shift 2
       ;;
+
     --group-id)
       group_id="$2"
       shift 2
       ;;
+
     --user-id)
       user_id="$2"
       shift 2
       ;;
+
     --host-uname)
       host_uname="$2"
       shift 2
       ;;
+
     *)
       echo "Unknown option $1, exit."
       exit 1
   esac
 done
 
-git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
-
-echo
-uname -a
-
 # Run the helper script in this shell, to get the support functions.
 source "${helper_script_path}"
 
 do_container_detect
+
+git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
 
 mkdir -p "${build_folder_path}"
 cd "${build_folder_path}"
