@@ -254,7 +254,8 @@ else
   fi
 fi
 
-# Copy the current helper script to Work area, to later copy it into the install folder.
+# Copy the current helper script to Work area, to later copy it into 
+# the install folder.
 mkdir -p "${WORK_FOLDER_PATH}/scripts"
 if [ "${helper_script_path}" != "${WORK_FOLDER_PATH}/scripts/build-helper.sh" ]
 then
@@ -559,8 +560,17 @@ then
 
   git branch
 
-  do_host_bootstrap
+fi
 
+# ----- Bootstrap. -----
+
+# If 'configure' is not yet there, make sure it is generated.
+if [ ! -f "${WORK_FOLDER_PATH}/${OPENOCD_FOLDER_NAME}/configure" ]
+then
+  echo
+  echo "Creating the automake files..."
+
+  do_host_bootstrap
 fi
 
 # ----- Get the USB libraries. -----
