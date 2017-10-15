@@ -186,7 +186,7 @@ do
       shift
       ;;
 
-    --no-pdf)
+    --without-pdf|--no-pdf)
       do_no_pdf="y"
       shift
       ;;
@@ -204,7 +204,7 @@ do
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--no-pdf] [--develop] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--without-pdf] [--develop] [--help]"
       echo
       exit 1
       ;;
@@ -715,7 +715,7 @@ fi
 # v===========================================================================v
 # Create the build script (needs to be separate for Docker).
 
-script_name="build.sh"
+script_name="inner-build.sh"
 script_file_path="${WORK_FOLDER_PATH}/scripts/${script_name}"
 
 rm -f "${script_file_path}"
