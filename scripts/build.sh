@@ -1240,29 +1240,36 @@ then
       if [ -f "/usr/lib/x86_64-linux-gnu/libudev.so" ]
       then
         cp "/usr/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+        cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
       elif [ -f "/lib/x86_64-linux-gnu/libudev.so" ]
       then
         # In Debian 9 the location changed to /lib
         cp "/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+        cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+      elif [ -f "/usr/lib/libudev.so" ]
+      then
+        # In ARCH the location is /usr/lib
+        cp "/usr/lib/libudev.so" "${install_folder}/lib"
+        cp "/usr/lib/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
       else
         echo "No libudev.so; abort."
       fi
-      cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
     elif [ "${target_bits}" == "32" ] 
     then
       cp "/usr/include/libudev.h" "${install_folder}/include"
       if [ -f "/usr/lib/i386-linux-gnu/libudev.so" ]
       then
         cp "/usr/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+        cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
       elif [ -f "/lib/i386-linux-gnu/libudev.so" ]
       then
         # In Debian 9 the location changed to /lib
         cp "/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+        cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
       else
         echo "No libudev.so; abort."
         exit 1
       fi
-      cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
     fi
 
     cd "${build_folder_path}/${HIDAPI_FOLDER}"
