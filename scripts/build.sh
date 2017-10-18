@@ -816,6 +816,11 @@ do
       shift 2
       ;;
 
+    --shared-install-folder)
+      shared_install_folder_path="$2"
+      shift 2
+      ;;
+
     --docker-container-name)
       docker_container_name="$2"
       shift 2
@@ -1807,6 +1812,8 @@ distribution_file_version=$(cat "${git_folder_path}/gnu-mcu-eclipse/VERSION-dev"
 do_container_create_distribution
 
 do_check_application "openocd" --version
+
+do_container_copy_install
 
 # Requires ${distribution_file} and ${result}
 do_container_completed
