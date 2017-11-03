@@ -538,12 +538,6 @@ else
 
 fi
 
-# ----- Get the current Git branch name. -----
-
-# Get the current Git branch name, to know if we are building the stable or
-# the development release.
-do_host_get_git_head
-
 # ----- Get current date. -----
 
 # Use the UTC date as version in the name of the distribution file.
@@ -754,7 +748,6 @@ cat <<__EOF__ >> "${script_file_path}"
 APP_NAME="${APP_NAME}"
 APP_LC_NAME="${APP_LC_NAME}"
 APP_UC_NAME="${APP_UC_NAME}"
-GIT_HEAD="${GIT_HEAD}"
 DISTRIBUTION_FILE_DATE="${DISTRIBUTION_FILE_DATE}"
 PROJECT_GIT_FOLDER_NAME="${PROJECT_GIT_FOLDER_NAME}"
 OPENOCD_FOLDER_NAME="${OPENOCD_FOLDER_NAME}"
@@ -1794,20 +1787,7 @@ fi
 
 mkdir -p "${output_folder_path}"
 
-if false
-then
-
-if [ "${GIT_HEAD}" == "gnu-mcu-eclipse" ]
-then
-  distribution_file_version=$(cat "${git_folder_path}/gnu-mcu-eclipse/VERSION")-${DISTRIBUTION_FILE_DATE}
-elif [ "${GIT_HEAD}" == "gnu-mcu-eclipse-dev" ]
-then
-  distribution_file_version=$(cat "${git_folder_path}/gnu-mcu-eclipse/VERSION-dev")-${DISTRIBUTION_FILE_DATE}-dev
-fi
-
-fi
-
-distribution_file_version=$(cat "${git_folder_path}/gnu-mcu-eclipse/VERSION-dev")-${DISTRIBUTION_FILE_DATE}-dev
+distribution_file_version=$(cat "${git_folder_path}/gnu-mcu-eclipse/VERSION")-${DISTRIBUTION_FILE_DATE}
 
 do_container_create_distribution
 
