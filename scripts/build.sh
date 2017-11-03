@@ -285,7 +285,8 @@ OPENOCD_FOLDER_NAME="${OPENOCD_FOLDER_NAME:-openocd.git}"
 OPENOCD_GIT_URL="${OPENOCD_GIT_URL:-https://github.com/gnu-mcu-eclipse/openocd.git}"
 # OPENOCD_GIT_BRANCH="${OPENOCD_GIT_BRANCH:-gnu-mcu-eclipse}"
 OPENOCD_GIT_BRANCH="${OPENOCD_GIT_BRANCH:-gnu-mcu-eclipse-dev}"
-OPENOCD_GIT_COMMIT="HEAD"
+# OPENOCD_GIT_COMMIT="HEAD"
+OPENOCD_GIT_COMMIT="50b14c865ea9657c74f77a70e2cc92b16f9d66b8"
 
 # Since some of the original URLs are occasionaly unavailable,
 # the archives were re-published in a dedicated GitHub project:
