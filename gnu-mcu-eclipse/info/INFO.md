@@ -9,7 +9,7 @@ maintained by [SiFive](https://www.sifive.com).
 
 The current version is based on 
 
-- OpenOCD version 0.10.0-development, commit [1025be](http://repo.or.cz/openocd.git/commit/7719e9618e753ac41a46a2488dfba549ac578891) from Aug 10th, 2017
+- OpenOCD version 0.10.0-development, commit [7719e96](http://repo.or.cz/openocd.git/commit/7719e9618e753ac41a46a2488dfba549ac578891) from Aug 10th, 2017
 - RISC-V commit [055a70f](https://github.com/riscv/riscv-openocd/commit/055a70f66f8c27e52798197e11505688b994a241) from Nov 3rd, 2017
 
 ## Changes
