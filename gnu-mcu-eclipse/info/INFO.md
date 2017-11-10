@@ -9,16 +9,19 @@ maintained by [SiFive](https://www.sifive.com).
 
 The current version is based on 
 
-- OpenOCD version 0.10.0-development, commit [1025be](http://repo.or.cz/openocd.git/commit/1025be363e2bf42f1613083223a2322cc3a9bd4c) from May 31, 2017
-- RISC-V release v20170621, commit [d77c4a](https://github.com/riscv/riscv-openocd/commit/d77c4a953c1f2a6e1f84c28e64bf9296a4bb398a) from June 21, 2017
+- OpenOCD version 0.10.0-development, commit [1025be](http://repo.or.cz/openocd.git/commit/7719e9618e753ac41a46a2488dfba549ac578891) from Aug 10th, 2017
+- RISC-V commit [055a70f](https://github.com/riscv/riscv-openocd/commit/055a70f66f8c27e52798197e11505688b994a241) from Nov 3rd, 2017
 
 ## Changes
 
-The changes are minimal, and mainly consist in the additional files 
-required by the packing procedure used to generate the binary packages 
-(for more details please see `gnu-mcu-eclipse/CHANGES.txt`).
+Compared to the RISC_V version, the changes are:
 
-The main addition is **support for RISC-V devices**.
+* the `monitor reg` command no longer shows the 4096 CSRs
+* the following board files are added for the SiFive boards
+  * `sifive-hifive1.cfg`
+  * `sifive-e31arty.cfg`
+  * `sifive-e51arty.cfg`
+* some of the GDB error processing patches added by RISC-V in `server/gdb_server.c` were reversed, since they interfered with other targets
 
 ## More info
 

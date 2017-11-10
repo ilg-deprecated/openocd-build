@@ -10,5 +10,5 @@ These are the additional files required by the **GNU MCU Eclipse OpenOCD build**
 
 ## Files
 
-* `VERSION` - the current build version file. Its content looks like `0.8.0-2`, where `0.8.0` is the official OpenOCD version, and `2` is the GNU MCU Eclipse OpenOCD release number.
+* `VERSION` - the current build version file. Its content looks like `0.10.0-5`, where `0.10.0` is the official OpenOCD version, and `5` is the GNU MCU Eclipse OpenOCD release number.
 

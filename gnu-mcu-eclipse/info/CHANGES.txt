@@ -1,6 +1,14 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2017-11-10]
+
+- v0.10.0-5-20171110-dev released
+- update to master from Oct 2
+- update to riscv from Nov 4
+- target.c & riscv/riscv-0[13].c: hide the 4096 CSRs from `monitor reg`
+- update the SiFive board script files
+
 [2017-10-04]
 
 - v0.10.0-4-20171004-*-dev released
