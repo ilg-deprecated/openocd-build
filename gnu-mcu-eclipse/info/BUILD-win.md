@@ -6,16 +6,16 @@ project.
 
 To build the latest version of the binaries please use the script from:
 
-```bash
-$ git clone https://github.com/gnu-mcu-eclipse/openocd.git \
-~/Downloads/openocd.git
+```console
+$ git clone --recurse-submodules https://github.com/gnu-mcu-eclipse/openocd-build.git \
+  ~/Downloads/openocd-build.git
 ```
 
 To run it, first be sure that the packages required in the Prerequisites 
 section are installed, then download the script and execute it with bash:
 
-```bash
-$ bash ~/Downloads/openocd.git/scripts/build.sh --win32 --win64
+```console
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --win32 --win64
 ```
 
 The output of the build script are two `*.zip` archives and two `setup.exe`

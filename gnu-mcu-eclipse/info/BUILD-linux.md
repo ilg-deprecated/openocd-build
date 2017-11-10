@@ -5,16 +5,16 @@ running on an OS X machine, using the script provided in the GNU MCU Eclipse
 
 To build the latest version of the package please use the script from:
 
-```bash
-$ git clone https://github.com/gnu-mcu-eclipse/openocd.git \
-~/Downloads/openocd.git
+```console
+$ git clone --recurse-submodules https://github.com/gnu-mcu-eclipse/openocd-build.git \
+  ~/Downloads/openocd-build.git
 ```
 
 To run it, first be sure that the packages required in the Prerequisites 
 section are installed, then download the script and execute it with bash:
 
-```bash
-$ bash ~/Downloads/openocd.git/scripts/build.sh --debian32 --debian64
+```console
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --debian32 --debian64
 ```
 
 The output of the build script are two `.tgz` files in the 
