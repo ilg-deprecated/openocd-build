@@ -8,6 +8,7 @@ The changes applied to the OpenOCD master branch, and the releases, are:
 - update to riscv from Nov 4
 - target.c & riscv/riscv-0[13].c: hide the 4096 CSRs from `monitor reg`
 - update the SiFive board script files
+- revert the risc-v changes in `remote_bitbang.c`, since they break the build on mingw-w64
 
 [2017-10-04]
 
