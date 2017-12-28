@@ -205,7 +205,7 @@ SectionEnd
 Section "Documentation" SectionDoc
 
 SetOutPath "$INSTDIR\doc"
-File /nofatal "${INSTALL_FOLDER}\doc\openocd.pdf"
+File /nonfatal "${INSTALL_FOLDER}\doc\openocd.pdf"
 File /r "${INSTALL_FOLDER}\doc\openocd.html"
 
 SectionEnd
