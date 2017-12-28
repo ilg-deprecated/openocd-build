@@ -21,6 +21,9 @@
 
 ; NSIS_WIN32_MAKENSIS
 
+; NSIS User Manual
+; http://nsis.sourceforge.net/Docs/Contents.html
+
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
 !include "x64.nsh"
@@ -202,7 +205,7 @@ SectionEnd
 Section "Documentation" SectionDoc
 
 SetOutPath "$INSTDIR\doc"
-File "${INSTALL_FOLDER}\doc\openocd.pdf"
+File /nofatal "${INSTALL_FOLDER}\doc\openocd.pdf"
 File /r "${INSTALL_FOLDER}\doc\openocd.html"
 
 SectionEnd
