@@ -1322,6 +1322,8 @@ then
   # --enable-zy1000
   # --enable-legacy-ft2232_libftdi
 
+  bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" --help
+
   if [ "${target_os}" == "win" ]
   then
 
