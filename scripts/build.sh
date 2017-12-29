@@ -1342,7 +1342,7 @@ then
     # Be sure all these lines end in '\' to ensure lines are concatenated.
     OUTPUT_DIR="${build_folder_path}" \
     \
-    CPPFLAGS="-Werror -m${target_bits} -pipe" \
+    CPPFLAGS="-Wno-pointer-to-int-cast -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig" \
     PKG_CONFIG_PREFIX="${install_folder}" \
