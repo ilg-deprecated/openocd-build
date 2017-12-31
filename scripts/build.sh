@@ -903,9 +903,12 @@ do
   esac
 done
 
+# -----------------------------------------------------------------------------
+
 # Run the helper script in this shell, to get the support functions.
 source "${helper_script_path}"
 
+# XBB not available when running from macOS.
 if [ -f "/opt/xbb/xbb.sh" ]
 then
   source "/opt/xbb/xbb.sh"
@@ -920,6 +923,18 @@ fi
 do_container_detect
 
 git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
+
+EXTRA_CFLAGS="-pipe -ffunction-sections -fdata-sections -m${target_bits} -pipe"
+EXTRA_CXXFLAGS="-pipe -ffunction-sections -fdata-sections -m${target_bits} -pipe"
+EXTRA_LDFLAGS="-static-libstdc++ -Wl,--gc-sections"
+
+# export PKG_CONFIG_PREFIX="${install_folder}"
+# export PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config"
+export PKG_CONFIG=pkg-config-verbose
+export PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig"
+
+
+# -----------------------------------------------------------------------------
 
 mkdir -p "${build_folder_path}"
 cd "${build_folder_path}"
@@ -987,8 +1002,6 @@ mkdir -p "${output_folder_path}"
 
 libusb1_stamp_file="${build_folder_path}/${LIBUSB1_FOLDER}/stamp-install-completed"
 
-# if [ ! \( -f "${install_folder}/lib/libusb-1.0.a" -o \
-#          -f "${install_folder}/lib64/libusb-1.0.a" \) ]
 if [ ! -f "${libusb1_stamp_file}" ]
 then
 
@@ -1000,44 +1013,28 @@ then
   echo
   echo "Running libusb1 configure..."
 
-  cd "${build_folder_path}/${LIBUSB1_FOLDER}"
+  (
+    cd "${build_folder_path}/${LIBUSB1_FOLDER}"
 
-  
-  "${work_folder_path}/${LIBUSB1_FOLDER}/configure" --help
+    "${work_folder_path}/${LIBUSB1_FOLDER}/configure" --help
 
-  # Shared required by libftdi.
+    # --enable-shared required by libftdi.
+    export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-deprecated-declarations  -Wno-format"
+    bash "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
+        --prefix="${install_folder}" \
+        --build=${BUILD} \
+        --host=${HOST} \
+        --target=${TARGET} \
+        --enable-shared \
+        --enable-static
 
-  if [ "${target_os}" == "win" ]
-  then
-    CFLAGS="-Wno-non-literal-null-conversion -Wno-format -m${target_bits} -pipe" \
-    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
-      --host="${cross_compile_prefix}" \
-      --prefix="${install_folder}"
-  else
-    CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -m${target_bits} -pipe" \
-    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
-      --prefix="${install_folder}" \
-      --enable-shared \
-      --enable-static
-  fi
+    echo
+    echo "Running libusb1 make..."
 
-  echo
-  echo "Running libusb1 make..."
-
-  # Build.
-  # make clean
-  make ${jobs}
-  make install
-
-  if false # [ "${target_os}" == "win" ]
-  then
-    # Remove DLLs to force static link for final executable.
-    rm -f "${install_folder}/bin/libusb-1.0.dll"
-    rm -f "${install_folder}/lib/libusb-1.0.dll.a"
-    rm -f "${install_folder}/lib/libusb-1.0.la"
-  fi
+    # Build.
+    make ${jobs}
+    make install
+  )
 
   touch "${libusb1_stamp_file}"
 fi
@@ -1046,9 +1043,6 @@ fi
 
 libusb0_stamp_file="${build_folder_path}/${LIBUSB0_FOLDER}/stamp-install-completed"
 
-# if [ \( "${target_os}" != "win" \) -a \
-#     ! \( -f "${install_folder}/lib/libusb.a" -o \
-#          -f "${install_folder}/lib64/libusb.a" \) ]
 if [ \( "${target_os}" != "win" \) -a \
     ! \( -f "${libusb0_stamp_file}" \) ]
 then
@@ -1061,28 +1055,26 @@ then
   echo
   echo "Running libusb0 configure..."
 
-  cd "${build_folder_path}/${LIBUSB0_FOLDER}"
+  (
+    cd "${build_folder_path}/${LIBUSB0_FOLDER}"
 
-  "${work_folder_path}/${LIBUSB0_FOLDER}/configure" --help
+    "${work_folder_path}/${LIBUSB0_FOLDER}/configure" --help
 
-  CFLAGS="-m${target_bits} -pipe" \
-  \
-  PKG_CONFIG_LIBDIR=\
-"${install_folder}/lib/pkgconfig":\
-"${install_folder}/lib64/pkgconfig" \
-  \
-  "${work_folder_path}/${LIBUSB0_FOLDER}/configure" \
-    --prefix="${install_folder}" \
-    --disable-shared \
-    --enable-static
+    export CFLAGS="${EXTRA_CFLAGS}"
 
-  echo
-  echo "Running libusb0 make..."
+    bash "${work_folder_path}/${LIBUSB0_FOLDER}/configure" \
+      --prefix="${install_folder}" \
+      --disable-shared \
+      --enable-static
 
-  # Build.
-  # make clean 
-  make ${jobs}
-  make install
+    echo
+    echo "Running libusb0 make..."
+
+    # Build.
+    # make clean 
+    make ${jobs}
+    make install
+  )
 
   touch "${libusb0_stamp_file}"
 fi
@@ -1091,9 +1083,6 @@ fi
 
 libusb_w32_stamp_file="${build_folder_path}/${LIBUSB_W32}/stamp-install-completed"
 
-# if [ \( "${target_os}" == "win" \) -a \
-#      ! \( -f "${install_folder}/lib/libusb.a" -o \
-#           -f "${install_folder}/lib64/libusb.a" \)  ]
 if [ \( "${target_os}" == "win" \) -a \
      ! \( -f "${libusb_w32_stamp_file}" \)  ]
 then
@@ -1107,6 +1096,7 @@ then
   echo
   echo "Running libusb-win32 make..."
 
+  (
   cd "${build_folder_path}/${LIBUSB_W32}"
 
   # Patch from:
@@ -1121,29 +1111,30 @@ then
 
   # Build.
   (
-    export CFLAGS="-Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable -m${target_bits} -pipe"
-    make \
-      host_prefix=${cross_compile_prefix} \
-      host_prefix_x86=i686-w64-mingw32 \
-      dll
+      export CFLAGS="${EXTRA_CFLAGS} -Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable"
+      make \
+        host_prefix=${cross_compile_prefix} \
+        host_prefix_x86=i686-w64-mingw32 \
+        dll
+    )
+
+    mkdir -p "${install_folder}/bin"
+    cp -v "${build_folder_path}/${LIBUSB_W32}/libusb0.dll" \
+      "${install_folder}/bin"
+
+    mkdir -p "${install_folder}/lib"
+    cp -v "${build_folder_path}/${LIBUSB_W32}/libusb.a" \
+      "${install_folder}/lib"
+
+    mkdir -p "${install_folder}/lib/pkgconfig"
+    sed -e "s|XXX|${install_folder}|" \
+      "${git_folder_path}/gnu-mcu-eclipse/pkgconfig/${LIBUSB_W32}.pc" \
+      > "${install_folder}/lib/pkgconfig/libusb.pc"
+
+    mkdir -p "${install_folder}/include/libusb"
+    cp -v "${build_folder_path}/${LIBUSB_W32}/src/lusb0_usb.h" \
+      "${install_folder}/include/libusb/usb.h"
   )
-
-  mkdir -p "${install_folder}/bin"
-  cp -v "${build_folder_path}/${LIBUSB_W32}/libusb0.dll" \
-     "${install_folder}/bin"
-
-  mkdir -p "${install_folder}/lib"
-  cp -v "${build_folder_path}/${LIBUSB_W32}/libusb.a" \
-     "${install_folder}/lib"
-
-  mkdir -p "${install_folder}/lib/pkgconfig"
-  sed -e "s|XXX|${install_folder}|" \
-    "${git_folder_path}/gnu-mcu-eclipse/pkgconfig/${LIBUSB_W32}.pc" \
-    > "${install_folder}/lib/pkgconfig/libusb.pc"
-
-  mkdir -p "${install_folder}/include/libusb"
-  cp -v "${build_folder_path}/${LIBUSB_W32}/src/lusb0_usb.h" \
-     "${install_folder}/include/libusb/usb.h"
 
   touch "${libusb_w32_stamp_file}"
 fi
@@ -1152,8 +1143,6 @@ fi
 
 libftdi_stamp_file="${build_folder_path}/${LIBFTDI_FOLDER}/stamp-install-completed"
 
-# if [ ! \( -f "${install_folder}/lib/libftdi1.a" -o \
-#            -f "${install_folder}/lib64/libftdi1.a" \)  ]
 if [ ! -f "${libftdi_stamp_file}" ]
 then
 
@@ -1166,70 +1155,88 @@ then
   echo "Running libftdi cmake..."
 
   cd "${build_folder_path}/${LIBFTDI_FOLDER}"
+  
+  (
+    export CFLAGS="${EXTRA_CFLAGS}"
 
-  if [ "${target_os}" == "win" ]
-  then
+    # Note: I could not make it generate only static libs, so it also
+    # requires the shared libusb.
 
-    # Configure.
-    CFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG_LIBDIR=\
-"${install_folder}/lib/pkgconfig":\
-"${install_folder}/lib64/pkgconfig" \
-    \
-    cmake \
-    -DPKG_CONFIG_EXECUTABLE="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    -DCMAKE_TOOLCHAIN_FILE="${work_folder_path}/${LIBFTDI_FOLDER}/cmake/Toolchain-${cross_compile_prefix}.cmake" \
-    -DCMAKE_INSTALL_PREFIX="${install_folder}" \
-    -DLIBUSB_INCLUDE_DIR="${install_folder}/include/libusb-1.0" \
-    -DLIBUSB_LIBRARIES="${install_folder}/lib/libusb-1.0.a" \
-    -DBUILD_TESTS:BOOL=off \
-    -DFTDIPP:BOOL=off \
-    -DPYTHON_BINDINGS:BOOL=off \
-    -DEXAMPLES:BOOL=off \
-    -DDOCUMENTATION:BOOL=off \
-    -DFTDI_EEPROM:BOOL=off \
-    "${work_folder_path}/${LIBFTDI_FOLDER}"
+    if [ "${target_os}" == "win" ]
+    then
 
-  else
+      # Configure.
+      cmake \
+      -DPKG_CONFIG_EXECUTABLE="${PKG_CONFIG}" \
+      -DCMAKE_TOOLCHAIN_FILE="${work_folder_path}/${LIBFTDI_FOLDER}/cmake/Toolchain-${cross_compile_prefix}.cmake" \
+      -DCMAKE_INSTALL_PREFIX="${install_folder}" \
+      -DLIBUSB_INCLUDE_DIR="${install_folder}/include/libusb-1.0" \
+      -DLIBUSB_LIBRARIES="${install_folder}/lib/libusb-1.0.a" \
+      -DBUILD_TESTS:BOOL=off \
+      -DFTDIPP:BOOL=off \
+      -DPYTHON_BINDINGS:BOOL=off \
+      -DEXAMPLES:BOOL=off \
+      -DDOCUMENTATION:BOOL=off \
+      -DFTDI_EEPROM:BOOL=off \
+      "${work_folder_path}/${LIBFTDI_FOLDER}"
 
-    CFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG_LIBDIR=\
-"${install_folder}/lib/pkgconfig":\
-"${install_folder}/lib64/pkgconfig" \
-    \
-    cmake \
-    -DCMAKE_INSTALL_PREFIX="${install_folder}" \
-    -DBUILD_TESTS:BOOL=off \
-    -DFTDIPP:BOOL=off \
-    -DPYTHON_BINDINGS:BOOL=off \
-    -DEXAMPLES:BOOL=off \
-    -DDOCUMENTATION:BOOL=off \
-    -DFTDI_EEPROM:BOOL=off \
-    "${work_folder_path}/${LIBFTDI_FOLDER}"
+    else
 
-  fi
+      cmake \
+      -DCMAKE_INSTALL_PREFIX="${install_folder}" \
+      -DBUILD_TESTS:BOOL=off \
+      -DFTDIPP:BOOL=off \
+      -DPYTHON_BINDINGS:BOOL=off \
+      -DEXAMPLES:BOOL=off \
+      -DDOCUMENTATION:BOOL=off \
+      -DFTDI_EEPROM:BOOL=off \
+      "${work_folder_path}/${LIBFTDI_FOLDER}"
 
-  echo
-  echo "Running libftdi make..."
+    fi
 
-  # Build.
-  # make clean 
-  make ${jobs} 
-  make install
+    echo
+    echo "Running libftdi make..."
 
-  if [ "${target_os}" == "win" ]
-  then
-    # Remove DLLs to force static link for final executable.
-    rm -f "${install_folder}/bin/libftdi1.dll"
-    rm -f "${install_folder}/bin/libftdi1-config"
-    rm -f "${install_folder}/lib/libftdi1.dll.a"
-    rm -f "${install_folder}/lib/pkgconfig/libftdipp1.pc"
-  else
-    # Remove shared to force static link for final executable.
-    rm -f "${install_folder}"/lib*/libftdi1.so*
-  fi
+    # Build.
+    make ${jobs} 
+    make install
+
+    ls -l "${install_folder}"/lib*/
+
+    # FTDI insists on building the shared libraries, but we do not want them.
+    # Remove them dependencies.
+
+    rm -f "${install_folder}"/bin/libftdi1-config
+    rm -f "${install_folder}"/bin/libusb-config
+    rm -f "${install_folder}"/lib/pkgconfig/libftdipp1.pc
+
+    if [ "${target_os}" == "win" ]
+    then
+      # Remove DLLs to force static link for final executable.
+      rm -f "${install_folder}"/bin/libftdi1.dll*
+
+      rm -f "${install_folder}"/bin/libusb-1.*.dll*
+      rm -f "${install_folder}"/lib/libusb-1.*.dll.a
+      rm -f "${install_folder}"/lib/libusb-1.*.la
+
+    elif [ "${target_os}" == "linux" ]
+    then
+
+      # Remove shared to force static link for final executable.
+      rm -f "${install_folder}"/lib*/libftdi1.so*
+
+    elif [ "${target_os}" == "osx" ]
+    then
+
+      # Remove dynamic to force static link for final executable.
+      rm -f "${install_folder}"/lib/libftdi*.dylib
+
+      rm -f "${install_folder}"/lib/libusb*.dylib
+      rm -f "${install_folder}"/lib/libusb*.la
+
+    fi
+
+  )
 
   touch "${libftdi_stamp_file}"
 fi
@@ -1238,8 +1245,6 @@ fi
 
 libiconv_stamp_file="${build_folder_path}/${LIBICONV}/stamp-install-completed"
 
-# if [ ! \( -f "${install_folder}/lib/libiconv.a" -o \
-#          -f "${install_folder}/lib64/libiconv.a" \) ]
 if [ ! -f "${libiconv_stamp_file}" ]
 then
 
@@ -1251,36 +1256,32 @@ then
   echo
   echo "Running libiconv configure..."
 
-  cd "${build_folder_path}/${LIBICONV_FOLDER}"
+  (
+    cd "${build_folder_path}/${LIBICONV_FOLDER}"
 
-  "${work_folder_path}/${LIBICONV_FOLDER}/configure" --help
+    "${work_folder_path}/${LIBICONV_FOLDER}/configure" --help
 
-  if [ "${target_os}" == "win" ]
-  then
-    CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
-    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
-      --host="${cross_compile_prefix}" \
-      --prefix="${install_folder}"
-  else
-    CFLAGS="-m${target_bits} -pipe" \
-    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    "${work_folder_path}/${LIBICONV_FOLDER}/configure" \
+    export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-tautological-compare -Wno-parentheses-equality -Wno-static-in-inline -Wno-unused-command-line-argument"
+
+    bash "${work_folder_path}/${LIBICONV_FOLDER}/configure" \
       --prefix="${install_folder}" \
+      --build=${BUILD} \
+      --host=${HOST} \
+      --target=${TARGET} \
       --disable-shared \
       --enable-static \
       --disable-rpath
-  fi
 
-  echo
-  echo "Running libiconv make..."
 
-  # Build.
-  # make clean
-  make ${jobs}
-  make install
+    echo
+    echo "Running libiconv make..."
 
-  rm -f "${install_folder}"/lib/preloadable_libiconv.so
+    # Build.
+    make ${jobs}
+    make install
+
+    rm -f "${install_folder}"/lib/preloadable_libiconv.so
+  )
 
   touch "${libiconv_stamp_file}"
 fi
@@ -1304,7 +1305,6 @@ then
   HIDAPI_A="libhidapi-hidraw.a"
 fi
 
-# if [ ! -f "${install_folder}/lib/${HIDAPI_A}" ]
 if [ ! -f "${libhdi_stamp_file}" ]
 then
 
@@ -1315,121 +1315,126 @@ then
     "${build_folder_path}/${HIDAPI_FOLDER}"
 
   echo
-  echo "Running libhid make..."
+  echo "Building libhid..."
 
-  if [ "${target_os}" == "win" ]
-  then
+  (
+    cd "${build_folder_path}/${HIDAPI_FOLDER}"
 
-    cd "${build_folder_path}/${HIDAPI_FOLDER}/${HIDAPI_TARGET}"
-
-    CFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
-    \
-    make -f Makefile.mingw \
-    CC=${cross_compile_prefix}-gcc \
-    "${HIDAPI_OBJECT}"
-
-    # Make just compiles the file. Create the archive and convert it to library.
-    # No dynamic/shared libs involved.
-    ar -r  libhid.a "${HIDAPI_OBJECT}"
-    ${cross_compile_prefix}-ranlib libhid.a
-
-    mkdir -p "${install_folder}/lib"
-    cp -v libhid.a \
-      "${install_folder}/lib"
-
-    mkdir -p "${install_folder}/lib/pkgconfig"
-    sed -e "s|XXX|${install_folder}|" \
-      "${git_folder_path}/gnu-mcu-eclipse/pkgconfig/${HIDAPI}-${HIDAPI_TARGET}.pc" \
-      > "${install_folder}/lib/pkgconfig/hidapi.pc"
-
-    mkdir -p "${install_folder}/include/hidapi"
-    cp -v "${work_folder_path}/${HIDAPI_FOLDER}/hidapi/hidapi.h" \
-      "${install_folder}/include/hidapi"
-
-  elif [ "${target_os}" == "linux" ]
-  then
-
-    if [ "${target_bits}" == "64" ]
+    if [ "${target_os}" == "win" ]
     then
-      cp "/usr/include/libudev.h" "${install_folder}/include"
-      if [ -f "/usr/lib/x86_64-linux-gnu/libudev.so" ]
-      then
-        cp "/usr/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
-        cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
-      elif [ -f "/lib/x86_64-linux-gnu/libudev.so" ]
-      then
-        # In Debian 9 the location changed to /lib
-        cp "/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
-        cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
-      elif [ -f "/usr/lib/libudev.so" ]
-      then
-        # In ARCH the location is /usr/lib
-        cp "/usr/lib/libudev.so" "${install_folder}/lib"
-        cp "/usr/lib/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
-      elif [ -f "/usr/lib64/libudev.so" ]
-      then
-        # In CentOS the location is /usr/lib64
-        cp "/usr/lib64/libudev.so" "${install_folder}/lib"
-        cp "/usr/lib64/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
-      else
-        echo "No libudev.so; abort."
-      fi
-    elif [ "${target_bits}" == "32" ] 
+
+      cd "${build_folder_path}/${HIDAPI_FOLDER}/${HIDAPI_TARGET}"
+
+      export CFLAGS="${EXTRA_CFLAGS}" \
+
+      make -f Makefile.mingw \
+        CC=${cross_compile_prefix}-gcc \
+        "${HIDAPI_OBJECT}"
+
+      # Make just compiles the file. Create the archive and convert it to library.
+      # No dynamic/shared libs involved.
+      ar -r  libhid.a "${HIDAPI_OBJECT}"
+      ${cross_compile_prefix}-ranlib libhid.a
+
+      mkdir -p "${install_folder}/lib"
+      cp -v libhid.a \
+        "${install_folder}/lib"
+
+      mkdir -p "${install_folder}/lib/pkgconfig"
+      sed -e "s|XXX|${install_folder}|" \
+        "${git_folder_path}/gnu-mcu-eclipse/pkgconfig/${HIDAPI}-${HIDAPI_TARGET}.pc" \
+        > "${install_folder}/lib/pkgconfig/hidapi.pc"
+
+      mkdir -p "${install_folder}/include/hidapi"
+      cp -v "${work_folder_path}/${HIDAPI_FOLDER}/hidapi/hidapi.h" \
+        "${install_folder}/include/hidapi"
+
+    elif [ "${target_os}" == "linux" ]
     then
-      cp "/usr/include/libudev.h" "${install_folder}/include"
-      if [ -f "/usr/lib/i386-linux-gnu/libudev.so" ]
+
+      if [ "${target_bits}" == "64" ]
       then
-        cp "/usr/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
-        cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
-      elif [ -f "/lib/i386-linux-gnu/libudev.so" ]
+        cp "/usr/include/libudev.h" "${install_folder}/include"
+        if [ -f "/usr/lib/x86_64-linux-gnu/libudev.so" ]
+        then
+          cp "/usr/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+          cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+        elif [ -f "/lib/x86_64-linux-gnu/libudev.so" ]
+        then
+          # In Debian 9 the location changed to /lib
+          cp "/lib/x86_64-linux-gnu/libudev.so" "${install_folder}/lib"
+          cp "/usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+        elif [ -f "/usr/lib/libudev.so" ]
+        then
+          # In ARCH the location is /usr/lib
+          cp "/usr/lib/libudev.so" "${install_folder}/lib"
+          cp "/usr/lib/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+        elif [ -f "/usr/lib64/libudev.so" ]
+        then
+          # In CentOS the location is /usr/lib64
+          cp "/usr/lib64/libudev.so" "${install_folder}/lib"
+          cp "/usr/lib64/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+        else
+          echo "No libudev.so; abort."
+        fi
+      elif [ "${target_bits}" == "32" ] 
       then
-        # In Debian 9 the location changed to /lib
-        cp "/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
-        cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
-      else
-        echo "No libudev.so; abort."
-        exit 1
+        cp "/usr/include/libudev.h" "${install_folder}/include"
+        if [ -f "/usr/lib/i386-linux-gnu/libudev.so" ]
+        then
+          cp "/usr/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+          cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
+        elif [ -f "/lib/i386-linux-gnu/libudev.so" ]
+        then
+          # In Debian 9 the location changed to /lib
+          cp "/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
+          cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
+        else
+          echo "No libudev.so; abort."
+          exit 1
+        fi
       fi
+
+      ./bootstrap
+
+      ./configure --help
+
+      export CFLAGS="${EXTRA_CFLAGS}"
+      export LIBS="-liconv"
+      
+      ./configure \
+        --prefix="${install_folder}" \
+        --build=${BUILD} \
+        --host=${HOST} \
+        --target=${TARGET} \
+        --disable-shared \
+        --enable-static
+
+      make ${jobs} 
+      make install
+
+    elif [ "${target_os}" == "osx" ]
+    then
+
+      ./bootstrap
+
+      export CFLAGS="${EXTRA_CFLAGS}"
+      export LIBS="-liconv"
+      
+      ./configure \
+        --prefix="${install_folder}" \
+        --build=${BUILD} \
+        --host=${HOST} \
+        --target=${TARGET} \
+        --disable-shared \
+        --enable-static
+
+      make ${jobs}
+      make install
+
     fi
 
-    cd "${build_folder_path}/${HIDAPI_FOLDER}"
-
-    ./bootstrap
-
-    ./configure --help
-
-    CFLAGS="-m${target_bits} -pipe" \
-    LIBS="-liconv" \
-    \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
-    \
-    ./configure \
-      --prefix="${install_folder}" \
-      --disable-shared \
-      --enable-static
-
-    make ${jobs} 
-    make install
-
-  elif [ "${target_os}" == "osx" ]
-  then
-
-    cd "${build_folder_path}/${HIDAPI_FOLDER}"
-
-    ./bootstrap
-
-    CFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
-    \
-    ./configure --prefix="${install_folder}"
-
-    make ${jobs}
-    make install
-
-  fi
+  )
 
   touch "${libhdi_stamp_file}"
 fi
@@ -1446,253 +1451,234 @@ then
   echo
   echo "Running OpenOCD configure..."
 
-  # Deprecated:
-  # --enable-ioutil
-  # --enable-oocd_trace
-  # --enable-zy1000
-  # --enable-legacy-ft2232_libftdi
-
-  bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" --help
-
-  if [ "${target_os}" == "win" ]
-  then
-
+  (
     cd "${build_folder_path}/openocd"
 
-    # --enable-minidriver-dummy -> configure error
-    # --enable-buspirate -> not supported on mingw
-    # --enable-zy1000 -> netinet/tcp.h: No such file or directory
-    # --enable-sysfsgpio -> available only on Linux
+    # Deprecated:
+    # --enable-ioutil
+    # --enable-oocd_trace
+    # --enable-zy1000
+    # --enable-legacy-ft2232_libftdi
 
-    # --enable-openjtag_ftdi -> --enable-openjtag
-    # --enable-presto_libftdi -> --enable-presto
-    # --enable-usb_blaster_libftdi -> --enable-usb_blaster
+    bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" --help
 
-    # All variables below are passed on the command line before 'configure'.
-    # Be sure all these lines end in '\' to ensure lines are concatenated.
-    OUTPUT_DIR="${build_folder_path}" \
-    \
+    if [ "${target_os}" == "win" ]
+    then
 
-    CFLAGS="-Wno-pointer-to-int-cast -m${target_bits} -pipe" \
-    CXXFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig" \
-    PKG_CONFIG_PREFIX="${install_folder}" \
-    \
-    bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
-    --build="$(uname -m)-linux-gnu" \
-    --host="${cross_compile_prefix}" \
-    --prefix="${install_folder}/openocd"  \
-    --datarootdir="${install_folder}" \
-    --infodir="${install_folder}/${APP_LC_NAME}/info"  \
-    --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
-    --mandir="${install_folder}/${APP_LC_NAME}/man"  \
-    --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
-    --disable-wextra \
-    --disable-werror \
-    --enable-dependency-tracking \
-    \
-    --enable-branding="GNU MCU Eclipse" \
-    \
-    --enable-aice \
-    --enable-amtjtagaccel \
-    --enable-armjtagew \
-    --enable-at91rm9200 \
-    --enable-bcm2835gpio \
-    --disable-buspirate \
-    --enable-cmsis-dap \
-    --enable-dummy \
-    --enable-ep93xx \
-    --enable-ftdi \
-    --enable-gw16012 \
-    --disable-ioutil \
-    --enable-jlink \
-    --enable-jtag_vpi \
-    --disable-minidriver-dummy \
-    --disable-oocd_trace \
-    --enable-opendous \
-    --enable-openjtag \
-    --enable-osbdm \
-    --enable-parport \
-    --disable-parport-ppdev \
-    --enable-parport-giveio \
-    --enable-presto \
-    --enable-remote-bitbang \
-    --enable-riscv \
-    --enable-rlink \
-    --enable-stlink \
-    --disable-sysfsgpio \
-    --enable-ti-icdi \
-    --enable-ulink \
-    --enable-usb_blaster \
-    --enable-usb-blaster-2 \
-    --enable-usbprog \
-    --enable-vsllink \
-    --disable-zy1000-master \
-    --disable-zy1000 \
-    | tee "${output_folder_path}/configure-output.txt"
-    # Note: don't forget to update the INFO.txt file after changing these.
+      # --enable-minidriver-dummy -> configure error
+      # --enable-buspirate -> not supported on mingw
+      # --enable-zy1000 -> netinet/tcp.h: No such file or directory
+      # --enable-sysfsgpio -> available only on Linux
 
-  elif [ "${target_os}" == "linux" ]
-  then
+      # --enable-openjtag_ftdi -> --enable-openjtag
+      # --enable-presto_libftdi -> --enable-presto
+      # --enable-usb_blaster_libftdi -> --enable-usb_blaster
 
-    LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-""}
+      export OUTPUT_DIR="${build_folder_path}"
+      
+      export CFLAGS="${EXTRA_CXXFLAGS} -Wno-pointer-to-int-cast" 
+      export CXXFLAGS="${EXTRA_CXXFLAGS}" 
+      export LDFLAGS="${EXTRA_LDFLAGS} -static"
+      
+      bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
+      --build="$(uname -m)-linux-gnu" \
+      --host="${cross_compile_prefix}" \
+      --prefix="${install_folder}/openocd"  \
+      --datarootdir="${install_folder}" \
+      --infodir="${install_folder}/${APP_LC_NAME}/info"  \
+      --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
+      --mandir="${install_folder}/${APP_LC_NAME}/man"  \
+      --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
+      --disable-wextra \
+      --disable-werror \
+      --enable-dependency-tracking \
+      \
+      --enable-branding="GNU MCU Eclipse" \
+      \
+      --enable-aice \
+      --enable-amtjtagaccel \
+      --enable-armjtagew \
+      --enable-at91rm9200 \
+      --enable-bcm2835gpio \
+      --disable-buspirate \
+      --enable-cmsis-dap \
+      --enable-dummy \
+      --enable-ep93xx \
+      --enable-ftdi \
+      --enable-gw16012 \
+      --disable-ioutil \
+      --enable-jlink \
+      --enable-jtag_vpi \
+      --disable-minidriver-dummy \
+      --disable-oocd_trace \
+      --enable-opendous \
+      --enable-openjtag \
+      --enable-osbdm \
+      --enable-parport \
+      --disable-parport-ppdev \
+      --enable-parport-giveio \
+      --enable-presto \
+      --enable-remote-bitbang \
+      --enable-riscv \
+      --enable-rlink \
+      --enable-stlink \
+      --disable-sysfsgpio \
+      --enable-ti-icdi \
+      --enable-ulink \
+      --enable-usb_blaster \
+      --enable-usb-blaster-2 \
+      --enable-usbprog \
+      --enable-vsllink \
+      --disable-zy1000-master \
+      --disable-zy1000 \
+      | tee "${output_folder_path}/configure-output.txt"
+      # Note: don't forget to update the INFO.txt file after changing these.
 
-    cd "${build_folder_path}/openocd"
+    elif [ "${target_os}" == "linux" ]
+    then
 
-    # --enable-minidriver-dummy -> configure error
+      # --enable-minidriver-dummy -> configure error
 
-    # --enable-openjtag_ftdi -> --enable-openjtag
-    # --enable-presto_libftdi -> --enable-presto
-    # --enable-usb_blaster_libftdi -> --enable-usb_blaster
+      # --enable-openjtag_ftdi -> --enable-openjtag
+      # --enable-presto_libftdi -> --enable-presto
+      # --enable-usb_blaster_libftdi -> --enable-usb_blaster
 
-    # All variables below are passed on the command line before 'configure'.
-    # Be sure all these lines end in '\' to ensure lines are concatenated.
-    # On some machines libftdi ends in lib64, so we refer both lib & lib64
-    CFLAGS="-m${target_bits} -pipe -Wno-format-truncation -Wno-format-overflow" \
-    CXXFLAGS="-m${target_bits} -pipe" \
-    LDFLAGS='-Wl,-lpthread' \
-    \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
-    \
-    LD_LIBRARY_PATH="${install_folder}/lib":"${install_folder}/lib64":"${LD_LIBRARY_PATH}" \
-    \
-    bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
-    --prefix="${install_folder}/openocd"  \
-    --datarootdir="${install_folder}" \
-    --infodir="${install_folder}/${APP_LC_NAME}/info"  \
-    --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
-    --mandir="${install_folder}/${APP_LC_NAME}/man"  \
-    --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
-    --disable-wextra \
-    --disable-werror \
-    --enable-dependency-tracking \
-    \
-    --enable-branding="GNU MCU Eclipse" \
-    \
-    --enable-aice \
-    --enable-amtjtagaccel \
-    --enable-armjtagew \
-    --enable-at91rm9200 \
-    --enable-bcm2835gpio \
-    --enable-buspirate \
-    --enable-cmsis-dap \
-    --enable-dummy \
-    --enable-ep93xx \
-    --enable-ftdi \
-    --enable-gw16012 \
-    --disable-ioutil \
-    --enable-jlink \
-    --enable-jtag_vpi \
-    --disable-minidriver-dummy \
-    --disable-oocd_trace \
-    --enable-opendous \
-    --enable-openjtag \
-    --enable-osbdm \
-    --enable-parport \
-    --disable-parport-ppdev \
-    --enable-parport-giveio \
-    --enable-presto \
-    --enable-remote-bitbang \
-    --enable-riscv \
-    --enable-rlink \
-    --enable-stlink \
-    --enable-sysfsgpio \
-    --enable-ti-icdi \
-    --enable-ulink \
-    --enable-usb_blaster \
-    --enable-usb-blaster-2 \
-    --enable-usbprog \
-    --enable-vsllink \
-    --disable-zy1000-master \
-    --disable-zy1000 \
-    | tee "${output_folder_path}/configure-output.txt"
-    # Note: don't forget to update the INFO.txt file after changing these.
+      export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
+      export CXXFLAGS="${EXTRA_CXXFLAGS}"
+      export LIBS="-lpthread"
+      export LDFLAGS="${EXTARLDFLAGS}" 
+       
+      bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
+      --prefix="${install_folder}/openocd"  \
+      --datarootdir="${install_folder}" \
+      --infodir="${install_folder}/${APP_LC_NAME}/info"  \
+      --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
+      --mandir="${install_folder}/${APP_LC_NAME}/man"  \
+      --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
+      --disable-wextra \
+      --disable-werror \
+      --enable-dependency-tracking \
+      \
+      --enable-branding="GNU MCU Eclipse" \
+      \
+      --enable-aice \
+      --enable-amtjtagaccel \
+      --enable-armjtagew \
+      --enable-at91rm9200 \
+      --enable-bcm2835gpio \
+      --enable-buspirate \
+      --enable-cmsis-dap \
+      --enable-dummy \
+      --enable-ep93xx \
+      --enable-ftdi \
+      --enable-gw16012 \
+      --disable-ioutil \
+      --enable-jlink \
+      --enable-jtag_vpi \
+      --disable-minidriver-dummy \
+      --disable-oocd_trace \
+      --enable-opendous \
+      --enable-openjtag \
+      --enable-osbdm \
+      --enable-parport \
+      --disable-parport-ppdev \
+      --enable-parport-giveio \
+      --enable-presto \
+      --enable-remote-bitbang \
+      --enable-riscv \
+      --enable-rlink \
+      --enable-stlink \
+      --enable-sysfsgpio \
+      --enable-ti-icdi \
+      --enable-ulink \
+      --enable-usb_blaster \
+      --enable-usb-blaster-2 \
+      --enable-usbprog \
+      --enable-vsllink \
+      --disable-zy1000-master \
+      --disable-zy1000 \
+      | tee "${output_folder_path}/configure-output.txt"
+      # Note: don't forget to update the INFO.txt file after changing these.
 
-  elif [ "${target_os}" == "osx" ]
-  then
+    elif [ "${target_os}" == "osx" ]
+    then
 
-    DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH:-""}
+      # --enable-minidriver-dummy -> configure error
+      # --enable-sysfsgpio -> available only on Linux
+      # --enable-amtjtagaccel -> 'sys/io.h' file not found
+      # --enable-gw16012 -> 'sys/io.h' file not found
 
-    cd "${build_folder_path}/openocd"
+      # --enable-openjtag_ftdi -> --enable-openjtag
+      # --enable-presto_libftdi -> --enable-presto
+      # --enable-usb_blaster_libftdi -> --enable-usb_blaster
 
-    # --enable-minidriver-dummy -> configure error
-    # --enable-sysfsgpio -> available only on Linux
-    # --enable-amtjtagaccel -> 'sys/io.h' file not found
-    # --enable-gw16012 -> 'sys/io.h' file not found
+      export CFLAGS="${EXTRA_CFLAGS}"
+      export CXXFLAGS="${EXTRA_CXXFLAGS}"
+      if [ "${target_os}" != "osx" ]
+      then
+        export LDFLAGS="${EXTRA_LDFLAGS} -static"
+      fi
+      export JAYLINK_CFLAGS='${EXTRA_CFLAGS} -Wall -Wextra -fvisibility=hidden'
+      
+      bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
+      --prefix="${install_folder}/openocd"  \
+      --datarootdir="${install_folder}" \
+      --infodir="${install_folder}/${APP_LC_NAME}/info"  \
+      --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
+      --mandir="${install_folder}/${APP_LC_NAME}/man"  \
+      --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
+      --disable-wextra \
+      --disable-werror \
+      --enable-dependency-tracking \
+      \
+      --enable-branding="GNU MCU Eclipse" \
+      \
+      --enable-aice \
+      --disable-amtjtagaccel \
+      --enable-armjtagew \
+      --enable-at91rm9200 \
+      --enable-bcm2835gpio \
+      --enable-buspirate \
+      --enable-cmsis-dap \
+      --enable-dummy \
+      --enable-ep93xx \
+      --enable-ftdi \
+      --disable-gw16012 \
+      --disable-ioutil \
+      --enable-jlink \
+      --enable-jtag_vpi \
+      --disable-minidriver-dummy \
+      --disable-oocd_trace \
+      --enable-opendous \
+      --enable-openjtag \
+      --enable-osbdm \
+      --disable-parport \
+      --disable-parport-ppdev \
+      --disable-parport-giveio \
+      --enable-presto \
+      --enable-remote-bitbang \
+      --enable-riscv \
+      --enable-rlink \
+      --enable-stlink \
+      --disable-sysfsgpio \
+      --enable-ti-icdi \
+      --enable-ulink \
+      --enable-usb-blaster \
+      --enable-usb_blaster_2 \
+      --enable-usbprog \
+      --enable-vsllink \
+      --disable-zy1000-master \
+      --disable-zy1000 \
+      | tee "${output_folder_path}/configure-output.txt"
+      # Note: don't forget to update the INFO.txt file after changing these.
 
-    # --enable-openjtag_ftdi -> --enable-openjtag
-    # --enable-presto_libftdi -> --enable-presto
-    # --enable-usb_blaster_libftdi -> --enable-usb_blaster
+    else
 
-    # All variables below are passed on the command line before 'configure'.
-    # Be sure all these lines end in '\' to ensure lines are concatenated.
-    CFLAGS="-m${target_bits} -pipe" \
-    CXXFLAGS="-m${target_bits} -pipe" \
-    \
-    PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
-    \
-    DYLD_LIBRARY_PATH="${install_folder}/lib":"${DYLD_LIBRARY_PATH}" \
-    \
-    bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
-    --prefix="${install_folder}/openocd"  \
-    --datarootdir="${install_folder}" \
-    --infodir="${install_folder}/${APP_LC_NAME}/info"  \
-    --localedir="${install_folder}/${APP_LC_NAME}/locale"  \
-    --mandir="${install_folder}/${APP_LC_NAME}/man"  \
-    --docdir="${install_folder}/${APP_LC_NAME}/doc"  \
-    --disable-wextra \
-    --disable-werror \
-    --enable-dependency-tracking \
-    \
-    --enable-branding="GNU MCU Eclipse" \
-    \
-    --enable-aice \
-    --disable-amtjtagaccel \
-    --enable-armjtagew \
-    --enable-at91rm9200 \
-    --enable-bcm2835gpio \
-    --enable-buspirate \
-    --enable-cmsis-dap \
-    --enable-dummy \
-    --enable-ep93xx \
-    --enable-ftdi \
-    --disable-gw16012 \
-    --disable-ioutil \
-    --enable-jlink \
-    --enable-jtag_vpi \
-    --disable-minidriver-dummy \
-    --disable-oocd_trace \
-    --enable-opendous \
-    --enable-openjtag \
-    --enable-osbdm \
-    --disable-parport \
-    --disable-parport-ppdev \
-    --disable-parport-giveio \
-    --enable-presto \
-    --enable-remote-bitbang \
-    --enable-riscv \
-    --enable-rlink \
-    --enable-stlink \
-    --disable-sysfsgpio \
-    --enable-ti-icdi \
-    --enable-ulink \
-    --enable-usb-blaster \
-    --enable-usb_blaster_2 \
-    --enable-usbprog \
-    --enable-vsllink \
-    --disable-zy1000-master \
-    --disable-zy1000 \
-    | tee "${output_folder_path}/configure-output.txt"
-    # Note: don't forget to update the INFO.txt file after changing these.
+      echo "Unsupported target os ${target_os}."
+      exit 1
 
-  else
-
-    echo "Unsupported target os ${target_os}."
-    exit 1
-
-  fi
+    fi
+  )
 
   cd "${build_folder_path}/${APP_LC_NAME}"
   cp config.* "${output_folder_path}"
@@ -1728,7 +1714,14 @@ then
 
   (
     cd "${build_folder_path}/${APP_LC_NAME}"
-    make install  
+
+    if [ -z "${do_no_strip}" ]
+    then
+      make install-strip
+    else
+      make install  
+    fi
+
     if [ -z "${do_no_pdf}" ]
     then
       make install-pdf install-html install-man
@@ -1748,12 +1741,6 @@ then
 
   if [ "${target_os}" == "win" ]
   then
-
-    if [ -z "${do_no_strip}" ]
-    then
-      ${cross_compile_prefix}-strip \
-        "${install_folder}/${APP_LC_NAME}/bin/openocd.exe"
-    fi
 
     echo
     echo "Copying DLLs..."
@@ -1786,11 +1773,6 @@ then
 
   elif [ "${target_os}" == "linux" ]
   then
-
-    if [ -z "${do_no_strip}" ]
-    then
-      strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
-    fi
 
     # This is a very important detail: 'patchelf' sets "runpath"
     # in the ELF file to $ORIGIN, telling the loader to search
@@ -1829,43 +1811,6 @@ then
 
     do_container_linux_copy_system_so libudev
     do_container_linux_copy_librt_so
-
-  elif [ "${target_os}" == "osx" ]
-  then
-
-    if [ -z "${do_no_strip}" ]
-    then
-      strip "${install_folder}/${APP_LC_NAME}/bin/openocd"
-    fi
-
-    echo
-    echo "Copying dynamic libs..."
-
-    # Post-process dynamic libraries paths to be relative to executable folder.
-
-    ILIB=openocd
-    # otool -L "${install_folder}/${APP_LC_NAME}/bin/openocd"
-
-    install_name_tool -change "libftdi1.2.dylib" "@executable_path/libftdi1.2.dylib" \
-      "${install_folder}/${APP_LC_NAME}/bin/openocd"
-    do_container_mac_change_built_lib libusb-1.0.0.dylib
-    do_container_mac_change_built_lib libusb-0.1.4.dylib
-    do_container_mac_change_built_lib libhidapi.0.dylib
-    do_container_mac_check_libs
-
-    do_container_mac_copy_built_lib libftdi1.2.dylib
-    do_container_mac_change_built_lib libusb-1.0.0.dylib
-    do_container_mac_check_libs
-
-    do_container_mac_copy_built_lib libusb-0.1.4.dylib
-    do_container_mac_change_built_lib libusb-1.0.0.dylib
-    do_container_mac_check_libs
-
-    do_container_mac_copy_built_lib libusb-1.0.0.dylib
-    do_container_mac_check_libs
-
-    do_container_mac_copy_built_lib libhidapi.0.dylib
-    do_container_mac_check_libs
 
   fi
 
