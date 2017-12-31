@@ -972,6 +972,12 @@ fi
 echo "Checking shasum..."
 shasum --version
 
+if [ "${target_os}" != "win" ]
+then
+  export CC=gcc
+  export CXX=g++
+fi
+
 # ----- Recreate the output folder. -----
 
 # rm -rf "${output_folder_path}"
