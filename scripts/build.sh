@@ -329,6 +329,15 @@ LIBFTDI="${LIBFTDI_FOLDER}"
 # LIBFTDI_URL="http://www.intra2net.com/en/developer/libftdi/download/${LIBFTDI_ARCHIVE}"
 LIBFTDI_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${LIBFTDI_ARCHIVE}"
 
+# https://www.gnu.org/software/libiconv/
+# https://ftp.gnu.org/pub/gnu/libiconv/
+# 2017-02-02
+LIBICONV_VERSION="1.15"
+LIBICONV_FOLDER="libiconv-${LIBICONV_VERSION}"
+LIBICONV="libiconv-${LIBICONV_VERSION}"
+LIBICONV_ARCHIVE="${LIBICONV}.tar.gz"
+LIBICONV_URL="https://ftp.gnu.org/pub/gnu/libiconv/${LIBICONV_ARCHIVE}"
+
 # https://github.com/signal11/hidapi/downloads
 # Oct 26, 2011
 # HIDAPI_VERSION="0.7.0"
@@ -342,6 +351,7 @@ HIDAPI="hidapi-${HIDAPI_VERSION}"
 HIDAPI_ARCHIVE="${HIDAPI}.zip"
 # HIDAPI_URL="https://github.com/signal11/hidapi/archive/${HIDAPI_ARCHIVE}"
 HIDAPI_URL="https://github.com/gnu-mcu-eclipse/files/raw/master/libs/${HIDAPI_ARCHIVE}"
+
 
 # ----- Process actions. -----
 
@@ -364,6 +374,7 @@ then
   rm -rf "${WORK_FOLDER_PATH}/${LIBUSB_W32_FOLDER}"
   rm -rf "${WORK_FOLDER_PATH}/${LIBFTDI_FOLDER}"
   rm -rf "${WORK_FOLDER_PATH}/${HIDAPI_FOLDER}"
+  rm -rf "${WORK_FOLDER_PATH}/${LIBICONV_FOLDER}"
 
   rm -rf "${WORK_FOLDER_PATH}/scripts"
 
@@ -706,6 +717,25 @@ then
   unzip "${DOWNLOAD_FOLDER_PATH}/${HIDAPI_ARCHIVE}"
 fi
 
+# Download the LIBICONV library.
+if [ ! -f "${DOWNLOAD_FOLDER_PATH}/${LIBICONV_ARCHIVE}" ]
+then
+  mkdir -p "${DOWNLOAD_FOLDER_PATH}"
+
+  cd "${DOWNLOAD_FOLDER_PATH}"
+  echo
+  echo "Downloading \"${LIBICONV_ARCHIVE}\"..."
+
+  curl --fail -L "${LIBICONV_URL}" --output "${LIBICONV_ARCHIVE}"
+fi
+
+# Unpack the LIBICONV library.
+if [ ! -d "${WORK_FOLDER_PATH}/${LIBICONV_FOLDER}" ]
+then
+  cd "${WORK_FOLDER_PATH}"
+  tar -xvf "${DOWNLOAD_FOLDER_PATH}/${LIBICONV_ARCHIVE}"
+fi
+
 
 # v===========================================================================v
 # Create the build script (needs to be separate for Docker).
@@ -762,6 +792,8 @@ LIBUSB_W32_FOLDER="${LIBUSB_W32_FOLDER}"
 LIBFTDI_FOLDER="${LIBFTDI_FOLDER}"
 HIDAPI_FOLDER="${HIDAPI_FOLDER}"
 HIDAPI="${HIDAPI}"
+LIBICONV_FOLDER="${LIBICONV_FOLDER}"
+LIBICONV="${LIBICONV}"
 
 do_no_strip="${do_no_strip}"
 do_no_pdf="${do_no_pdf}"
@@ -1166,6 +1198,56 @@ then
   touch "${libftdi_stamp_file}"
 fi
 
+# ----- Build and install the LIBICONV library. -----
+
+libiconv_stamp_file="${build_folder_path}/${LIBICONV}/stamp-install-completed"
+
+# if [ ! \( -f "${install_folder}/lib/libiconv.a" -o \
+#          -f "${install_folder}/lib64/libiconv.a" \) ]
+if [ ! -f "${libiconv_stamp_file}" ]
+then
+
+  rm -rfv "${build_folder_path}/${LIBICONV_FOLDER}"
+  mkdir -p "${build_folder_path}/${LIBICONV_FOLDER}"
+
+  mkdir -p "${install_folder}"
+
+  echo
+  echo "Running libiconv configure..."
+
+  cd "${build_folder_path}/${LIBICONV_FOLDER}"
+
+  "${work_folder_path}/${LIBICONV_FOLDER}/configure" --help
+
+  if [ "${target_os}" == "win" ]
+  then
+    CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
+    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
+    "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
+      --host="${cross_compile_prefix}" \
+      --prefix="${install_folder}"
+  else
+    CFLAGS="-m${target_bits} -pipe" \
+    PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
+    "${work_folder_path}/${LIBICONV_FOLDER}/configure" \
+      --prefix="${install_folder}" \
+      --disable-shared \
+      --enable-static \
+      --disable-rpath
+  fi
+
+  echo
+  echo "Running libiconv make..."
+
+  # Build.
+  # make clean
+  make ${jobs}
+  make install
+
+  rm -f "${install_folder}"/lib/preloadable_libiconv.so
+
+  touch "${libiconv_stamp_file}"
+fi
 
 # ----- Build the new HDI library. -----
 
