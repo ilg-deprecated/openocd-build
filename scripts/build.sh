@@ -1002,9 +1002,14 @@ then
 
   cd "${build_folder_path}/${LIBUSB1_FOLDER}"
 
+  
+  "${work_folder_path}/${LIBUSB1_FOLDER}/configure" --help
+
+  # Shared required by libftdi.
+
   if [ "${target_os}" == "win" ]
   then
-    CFLAGS="-Wno-non-literal-null-conversion -m${target_bits} -pipe" \
+    CFLAGS="-Wno-non-literal-null-conversion -Wno-format -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
       --host="${cross_compile_prefix}" \
@@ -1013,7 +1018,9 @@ then
     CFLAGS="-Wno-non-literal-null-conversion -Wno-deprecated-declarations -m${target_bits} -pipe" \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     "${work_folder_path}/${LIBUSB1_FOLDER}/configure" \
-      --prefix="${install_folder}"
+      --prefix="${install_folder}" \
+      --enable-shared \
+      --enable-static
   fi
 
   echo
@@ -1022,9 +1029,9 @@ then
   # Build.
   # make clean
   make ${jobs}
-  make ${jobs} install
+  make install
 
-  if [ "${target_os}" == "win" ]
+  if false # [ "${target_os}" == "win" ]
   then
     # Remove DLLs to force static link for final executable.
     rm -f "${install_folder}/bin/libusb-1.0.dll"
@@ -1056,14 +1063,18 @@ then
 
   cd "${build_folder_path}/${LIBUSB0_FOLDER}"
 
-  CFLAGS="-Werror -m${target_bits} -pipe" \
+  "${work_folder_path}/${LIBUSB0_FOLDER}/configure" --help
+
+  CFLAGS="-m${target_bits} -pipe" \
   \
   PKG_CONFIG_LIBDIR=\
 "${install_folder}/lib/pkgconfig":\
 "${install_folder}/lib64/pkgconfig" \
   \
   "${work_folder_path}/${LIBUSB0_FOLDER}/configure" \
-    --prefix="${install_folder}"
+    --prefix="${install_folder}" \
+    --disable-shared \
+    --enable-static
 
   echo
   echo "Running libusb0 make..."
@@ -1071,7 +1082,7 @@ then
   # Build.
   # make clean 
   make ${jobs}
-  make ${jobs} install
+  make install
 
   touch "${libusb0_stamp_file}"
 fi
@@ -1109,8 +1120,13 @@ then
   patch -p1 < "${git_folder_path}/gnu-mcu-eclipse/patches/${LIBUSB_W32}-mingw-w64.patch"
 
   # Build.
-  CFLAGS="-Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable -Werror -m${target_bits} -pipe" \
-  make host_prefix=${cross_compile_prefix} host_prefix_x86=i686-w64-mingw32 dll
+  (
+    export CFLAGS="-Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable -m${target_bits} -pipe"
+    make \
+      host_prefix=${cross_compile_prefix} \
+      host_prefix_x86=i686-w64-mingw32 \
+      dll
+  )
 
   mkdir -p "${install_folder}/bin"
   cp -v "${build_folder_path}/${LIBUSB_W32}/libusb0.dll" \
@@ -1155,7 +1171,7 @@ then
   then
 
     # Configure.
-    CFLAGS="-Werror -m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe" \
     \
     PKG_CONFIG_LIBDIR=\
 "${install_folder}/lib/pkgconfig":\
@@ -1177,7 +1193,7 @@ then
 
   else
 
-    CFLAGS="-Werror -m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe" \
     \
     PKG_CONFIG_LIBDIR=\
 "${install_folder}/lib/pkgconfig":\
@@ -1201,7 +1217,7 @@ then
   # Build.
   # make clean 
   make ${jobs} 
-  make ${jobs} install
+  make install
 
   if [ "${target_os}" == "win" ]
   then
@@ -1210,6 +1226,9 @@ then
     rm -f "${install_folder}/bin/libftdi1-config"
     rm -f "${install_folder}/lib/libftdi1.dll.a"
     rm -f "${install_folder}/lib/pkgconfig/libftdipp1.pc"
+  else
+    # Remove shared to force static link for final executable.
+    rm -f "${install_folder}"/lib*/libftdi1.so*
   fi
 
   touch "${libftdi_stamp_file}"
@@ -1303,7 +1322,7 @@ then
 
     cd "${build_folder_path}/${HIDAPI_FOLDER}/${HIDAPI_TARGET}"
 
-    CFLAGS="-Werror -m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe" \
     \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
     \
@@ -1349,6 +1368,11 @@ then
         # In ARCH the location is /usr/lib
         cp "/usr/lib/libudev.so" "${install_folder}/lib"
         cp "/usr/lib/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
+      elif [ -f "/usr/lib64/libudev.so" ]
+      then
+        # In CentOS the location is /usr/lib64
+        cp "/usr/lib64/libudev.so" "${install_folder}/lib"
+        cp "/usr/lib64/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
       else
         echo "No libudev.so; abort."
       fi
@@ -1374,14 +1398,20 @@ then
 
     ./bootstrap
 
-    CFLAGS="-Werror -m${target_bits} -pipe" \
+    ./configure --help
+
+    CFLAGS="-m${target_bits} -pipe" \
+    LIBS="-liconv" \
     \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
     \
-    ./configure --prefix="${install_folder}"
+    ./configure \
+      --prefix="${install_folder}" \
+      --disable-shared \
+      --enable-static
 
     make ${jobs} 
-    make ${jobs} install
+    make install
 
   elif [ "${target_os}" == "osx" ]
   then
@@ -1390,19 +1420,20 @@ then
 
     ./bootstrap
 
-    CFLAGS="-Werror -m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe" \
     \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
     \
     ./configure --prefix="${install_folder}"
 
     make ${jobs}
-    make ${jobs} install
+    make install
 
   fi
 
   touch "${libhdi_stamp_file}"
 fi
+
 
 # Create the build folder.
 mkdir -p "${build_folder_path}/openocd"
@@ -1441,7 +1472,10 @@ then
     # Be sure all these lines end in '\' to ensure lines are concatenated.
     OUTPUT_DIR="${build_folder_path}" \
     \
-    CPPFLAGS="-Wno-pointer-to-int-cast -m${target_bits} -pipe" \
+
+    CFLAGS="-Wno-pointer-to-int-cast -m${target_bits} -pipe" \
+    CXXFLAGS="-m${target_bits} -pipe" \
+    \
     PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config" \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig" \
     PKG_CONFIG_PREFIX="${install_folder}" \
@@ -1516,7 +1550,8 @@ then
     # All variables below are passed on the command line before 'configure'.
     # Be sure all these lines end in '\' to ensure lines are concatenated.
     # On some machines libftdi ends in lib64, so we refer both lib & lib64
-    CPPFLAGS="-m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe -Wno-format-truncation -Wno-format-overflow" \
+    CXXFLAGS="-m${target_bits} -pipe" \
     LDFLAGS='-Wl,-lpthread' \
     \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
@@ -1593,7 +1628,8 @@ then
 
     # All variables below are passed on the command line before 'configure'.
     # Be sure all these lines end in '\' to ensure lines are concatenated.
-    CPPFLAGS="-Werror -m${target_bits} -pipe" \
+    CFLAGS="-m${target_bits} -pipe" \
+    CXXFLAGS="-m${target_bits} -pipe" \
     \
     PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig" \
     \
@@ -1683,7 +1719,7 @@ then
     make ${jobs} bindir="bin" pkgdatadir=""
     if [ -z "${do_no_pdf}" ]
     then
-      make ${jobs} bindir="bin" pkgdatadir="" pdf html 
+      make bindir="bin" pkgdatadir="" pdf html 
     fi
   ) | tee "${output_folder_path}/make-all-output.txt"
 
@@ -1692,10 +1728,10 @@ then
 
   (
     cd "${build_folder_path}/${APP_LC_NAME}"
-    make ${jobs} install  
+    make install  
     if [ -z "${do_no_pdf}" ]
     then
-      make ${jobs} install-pdf install-html install-man
+      make install-pdf install-html install-man
     fi
   )  | tee "${output_folder_path}/make-install-output.txt"
 
@@ -1737,7 +1773,7 @@ then
       do_container_win_copy_gcc_dll "libgcc_s_seh-1.dll"
     fi
 
-    do_container_win_copy_libwinpthread_dll
+    # do_container_win_copy_libwinpthread_dll
 
     # Copy possible DLLs. Currently only libusb0.dll is dynamic, all other
     # are also compiled as static.
@@ -1787,9 +1823,9 @@ then
     fi
 
     do_container_linux_copy_user_so libusb-1.0
-    do_container_linux_copy_user_so libusb-0.1
-    do_container_linux_copy_user_so libftdi1
-    do_container_linux_copy_user_so libhidapi-hidraw
+    # do_container_linux_copy_user_so libusb-0.1
+    # do_container_linux_copy_user_so libftdi1
+    # do_container_linux_copy_user_so libhidapi-hidraw
 
     do_container_linux_copy_system_so libudev
     do_container_linux_copy_librt_so
