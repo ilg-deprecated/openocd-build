@@ -4,6 +4,12 @@ These are the additional files required by the [GNU MCU Eclipse OpenOCD](https:/
 
 ## How to build
 
+```
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh clean
+$ caffeinate bash ~/Downloads/openocd-build.git/scripts/build.sh --all
+$ caffeinate bash ~/Downloads/openocd-build.git/scripts/build.sh --win32 --win64 --linux32 --linux64 --osx
+```
+
 The detailed steps are defined in the [How to build the OpenOCD binaries?](https://gnu-mcu-eclipse.github.io/openocd/build-procedure/) page.
 
 ## Folders
