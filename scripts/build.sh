@@ -1900,6 +1900,11 @@ __EOF__
 # The above marker must start in the first column.
 # ^===========================================================================^
 
+# docker_linux64_image="ilegeul/debian:9-gnu-mcu-eclipse"
+docker_linux64_image="ilegeul/centos:6-xbb-v3"
+# docker_linux32_image="ilegeul/debian32:9-gnu-mcu-eclipse"
+docker_linux32_image="ilegeul/centos32:6-xbb-v2"
+
 # ----- Build the native distribution. -----
 
 if [ -z "${DO_BUILD_OSX}${DO_BUILD_LINUX64}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_WIN32}" ]
@@ -1928,7 +1933,7 @@ else
     do_host_build_target "Creating the GNU/Linux 64-bits distribution..." \
       --target-os linux \
       --target-bits 64 \
-      --docker-image "ilegeul/debian:9-gnu-mcu-eclipse"
+      --docker-image "${docker_linux64_image}"
   fi
 
   # ----- Build the Windows 64-bits distribution. -----
@@ -1938,7 +1943,7 @@ else
     do_host_build_target "Creating the Windows 64-bits distribution..." \
       --target-os win \
       --target-bits 64 \
-      --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
+      --docker-image "${docker_linux64_image}" 
   fi
 
   # ----- Build the GNU/Linux 32-bits distribution. -----
@@ -1948,7 +1953,7 @@ else
     do_host_build_target "Creating the GNU/Linux 32-bits distribution..." \
       --target-os linux \
       --target-bits 32 \
-      --docker-image "ilegeul/debian32:9-gnu-mcu-eclipse"
+      --docker-image "${docker_linux32_image}"
   fi
 
   # ----- Build the Windows 32-bits distribution. -----
@@ -1959,7 +1964,7 @@ else
     do_host_build_target "Creating the Windows 32-bits distribution..." \
       --target-os win \
       --target-bits 32 \
-      --docker-image "ilegeul/debian:9-gnu-mcu-eclipse" 
+      --docker-image "${docker_linux32_image}"
   fi
 
 fi
