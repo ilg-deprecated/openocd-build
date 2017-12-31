@@ -906,6 +906,17 @@ done
 # Run the helper script in this shell, to get the support functions.
 source "${helper_script_path}"
 
+if [ -f "/opt/xbb/xbb.sh" ]
+then
+  source "/opt/xbb/xbb.sh"
+
+  xbb_activate
+
+  # Don't forget to add `-static-libstdc++` to app LDFLAGS,
+  # otherwise the final executable may have a reference to 
+  # a wrong `libstdc++.so.6`.
+fi
+
 do_container_detect
 
 git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
