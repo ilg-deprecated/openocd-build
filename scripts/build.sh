@@ -80,7 +80,7 @@ APP_NAME=${APP_NAME:-"OpenOCD"}
 APP_UC_NAME=${APP_UC_NAME:-"OpenOCD"}
 APP_LC_NAME=${APP_LC_NAME:-"openocd"}
 
-jobs=""
+jobs="-j2"
 
 # On Parallels virtual machines, prefer host Work folder.
 # Second choice are Work folders on secondary disks.
