@@ -905,33 +905,51 @@ done
 
 # -----------------------------------------------------------------------------
 
-# Run the helper script in this shell, to get the support functions.
-source "${helper_script_path}"
-
 # XBB not available when running from macOS.
 if [ -f "/opt/xbb/xbb.sh" ]
 then
   source "/opt/xbb/xbb.sh"
+fi
+
+# -----------------------------------------------------------------------------
+
+# Run the helper script in this shell, to get the support functions.
+source "${helper_script_path}"
+
+# Requires XBB_FOLDER.
+do_container_detect
+
+if [ -f "/opt/xbb/xbb.sh" ]
+then
+
+  # Required by jimtcl, building their bootstrap fails on 32-bits.
+  # Must be installed befoare activating XBB, otherwise yum fails,
+  # with python failing some crypto.
+  yum install -y tcl
 
   xbb_activate
 
   # Don't forget to add `-static-libstdc++` to app LDFLAGS,
   # otherwise the final executable may have a reference to 
   # a wrong `libstdc++.so.6`.
+
+  export PATH="/opt/texlive/bin/${CONTAINER_MACHINE}-linux":${PATH}
+
 fi
 
-do_container_detect
+# -----------------------------------------------------------------------------
 
 git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
 
-EXTRA_CFLAGS="-pipe -ffunction-sections -fdata-sections -m${target_bits} -pipe"
-EXTRA_CXXFLAGS="-pipe -ffunction-sections -fdata-sections -m${target_bits} -pipe"
-EXTRA_LDFLAGS="-static-libstdc++ -Wl,--gc-sections"
+EXTRA_CFLAGS="-ffunction-sections -fdata-sections -m${target_bits} -pipe"
+EXTRA_CXXFLAGS="-ffunction-sections -fdata-sections -m${target_bits} -pipe"
+EXTRA_CPPFLAGS="-I${install_folder}/include"
+EXTRA_LDFLAGS="-L${install_folder}/lib64 -L${install_folder}/lib -static-libstdc++ -Wl,--gc-sections"
 
 # export PKG_CONFIG_PREFIX="${install_folder}"
 # export PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config"
 export PKG_CONFIG=pkg-config-verbose
-export PKG_CONFIG_LIBDIR="${install_folder}/lib/pkgconfig":"${install_folder}/lib64/pkgconfig"
+export PKG_CONFIG_LIBDIR="${install_folder}/lib64/pkgconfig":"${install_folder}/lib/pkgconfig"
 
 
 # -----------------------------------------------------------------------------
@@ -1119,6 +1137,8 @@ then
     )
 
     mkdir -p "${install_folder}/bin"
+    # Skipping it does not remove the reference from openocd, so for the
+    # moment it is preserved.
     cp -v "${build_folder_path}/${LIBUSB_W32}/libusb0.dll" \
       "${install_folder}/bin"
 
@@ -1201,29 +1221,40 @@ then
     make ${jobs} 
     make install
 
-    ls -l "${install_folder}"/lib*/
+    echo
+    echo "Initial shared libraries..."
+    ls -lR "${install_folder}"/lib*/ "${install_folder}"/bin/*.dll
+
+    echo
+    echo "Removing shared libraries..."
 
     # FTDI insists on building the shared libraries, but we do not want them.
     # Remove them dependencies.
 
     rm -f "${install_folder}"/bin/libftdi1-config
     rm -f "${install_folder}"/bin/libusb-config
-    rm -f "${install_folder}"/lib/pkgconfig/libftdipp1.pc
+    rm -f "${install_folder}"/lib*/pkgconfig/libftdipp1.pc
 
     if [ "${target_os}" == "win" ]
     then
-      # Remove DLLs to force static link for final executable.
-      rm -f "${install_folder}"/bin/libftdi1.dll*
 
-      rm -f "${install_folder}"/bin/libusb-1.*.dll*
-      rm -f "${install_folder}"/lib/libusb-1.*.dll.a
-      rm -f "${install_folder}"/lib/libusb-1.*.la
+      # Remove DLLs to force static link for final executable.
+      rm -f "${install_folder}"/bin/libftdi*.dll*
+      rm -f "${install_folder}"/bin/libusb-1*.dll*
+
+      rm -f "${install_folder}"/lib/libftdi*.dll*
+
+      rm -f "${install_folder}"/lib/libusb*.dll*
+      rm -f "${install_folder}"/lib/libusb*.la
 
     elif [ "${target_os}" == "linux" ]
     then
 
       # Remove shared to force static link for final executable.
-      rm -f "${install_folder}"/lib*/libftdi1.so*
+      rm -f "${install_folder}"/lib*/libftdi*.so*
+
+      rm -f "${install_folder}"/lib*/libusb*.so*
+      rm -f "${install_folder}"/lib/libusb*.la
 
     elif [ "${target_os}" == "osx" ]
     then
@@ -1236,6 +1267,9 @@ then
 
     fi
 
+    echo
+    echo "Final shared libraries..."
+    ls -lR "${install_folder}"/lib*/ "${install_folder}"/bin/*.dll
   )
 
   touch "${libftdi_stamp_file}"
@@ -1261,7 +1295,7 @@ then
 
     "${work_folder_path}/${LIBICONV_FOLDER}/configure" --help
 
-    export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-tautological-compare -Wno-parentheses-equality -Wno-static-in-inline -Wno-unused-command-line-argument"
+    export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-tautological-compare -Wno-parentheses-equality -Wno-static-in-inline -Wno-unused-command-line-argument -Wno-pointer-to-int-cast"
 
     bash "${work_folder_path}/${LIBICONV_FOLDER}/configure" \
       --prefix="${install_folder}" \
@@ -1271,7 +1305,6 @@ then
       --disable-shared \
       --enable-static \
       --disable-rpath
-
 
     echo
     echo "Running libiconv make..."
@@ -1376,6 +1409,7 @@ then
           cp "/usr/lib64/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
         else
           echo "No libudev.so; abort."
+          exit 1
         fi
       elif [ "${target_bits}" == "32" ] 
       then
@@ -1389,6 +1423,11 @@ then
           # In Debian 9 the location changed to /lib
           cp "/lib/i386-linux-gnu/libudev.so" "${install_folder}/lib"
           cp /usr/lib/i386-linux-gnu/pkgconfig/libudev.pc "${install_folder}/lib/pkgconfig"
+        elif [ -f "/lib/libudev.so.0" ]
+        then
+          # In CentOS the location is /lib 
+          cp "/lib/libudev.so.0" "${install_folder}/lib"
+          cp "/usr/lib/pkgconfig/libudev.pc" "${install_folder}/lib/pkgconfig"
         else
           echo "No libudev.so; abort."
           exit 1
@@ -1400,7 +1439,7 @@ then
       ./configure --help
 
       export CFLAGS="${EXTRA_CFLAGS}"
-      export LIBS="-liconv"
+      export LIBS="-liconv -lpthread -ludev"
       
       ./configure \
         --prefix="${install_folder}" \
@@ -1434,6 +1473,7 @@ then
 
     fi
 
+    rm -f "${install_folder}"/lib*/libhidapi-hidraw.la
   )
 
   touch "${libhdi_stamp_file}"
@@ -1450,6 +1490,10 @@ then
 
   echo
   echo "Running OpenOCD configure..."
+
+  # May be required for repetitive builds, because this is an executable built 
+  # in place and using one for a different architecture may not be a good idea.
+  rm -rfv "${work_folder_path}/${OPENOCD_FOLDER_NAME}/jimtcl/autosetup/jimsh0"
 
   (
     cd "${build_folder_path}/openocd"
@@ -1545,8 +1589,8 @@ then
 
       export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
       export CXXFLAGS="${EXTRA_CXXFLAGS}"
-      export LIBS="-lpthread"
-      export LDFLAGS="${EXTARLDFLAGS}" 
+      export LIBS="-lpthread -lrt -ludev"
+      export LDFLAGS="${EXTRA_LDFLAGS}" 
        
       bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
       --prefix="${install_folder}/openocd"  \
@@ -1689,8 +1733,6 @@ fi
 
 openocd_stamp_file="${build_folder_path}/${APP_LC_NAME}/stamp-install-completed"
 
-# if [ ! \( -f "${build_folder_path}/${APP_LC_NAME}/src/openocd" \) -a \
-#     ! \( -f "${build_folder_path}/${APP_LC_NAME}/src/openocd.exe" \) ]
 if [ ! -f "${openocd_stamp_file}" ]
 then
 
@@ -1760,16 +1802,9 @@ then
       do_container_win_copy_gcc_dll "libgcc_s_seh-1.dll"
     fi
 
-    # do_container_win_copy_libwinpthread_dll
-
-    # Copy possible DLLs. Currently only libusb0.dll is dynamic, all other
-    # are also compiled as static.
-    cp -v "${install_folder}/bin/"*.dll "${install_folder}/${APP_LC_NAME}/bin"
-
-    if [ -z "${do_no_strip}" ]
-    then
-      ${cross_compile_prefix}-strip "${install_folder}/${APP_LC_NAME}/bin/"*.dll
-    fi
+    # For unknown reasons, openocd still has a reference to libusb0.dll,
+    # although everything should have been compiled as static.
+    cp -v "${install_folder}"/bin/libusb0.dll "${install_folder}/${APP_LC_NAME}"/bin
 
   elif [ "${target_os}" == "linux" ]
   then
@@ -1804,13 +1839,13 @@ then
       distro_machine="i386"
     fi
 
-    do_container_linux_copy_user_so libusb-1.0
+    # do_container_linux_copy_user_so libusb-1.0
     # do_container_linux_copy_user_so libusb-0.1
     # do_container_linux_copy_user_so libftdi1
     # do_container_linux_copy_user_so libhidapi-hidraw
 
     do_container_linux_copy_system_so libudev
-    do_container_linux_copy_librt_so
+    # do_container_linux_copy_librt_so
 
   fi
 
@@ -1831,6 +1866,7 @@ then
   do_container_copy_license "${work_folder_path}/${HIDAPI_FOLDER}" "${HIDAPI_FOLDER}"
   do_container_copy_license "${work_folder_path}/${LIBFTDI_FOLDER}" "${LIBFTDI_FOLDER}"
   do_container_copy_license "${work_folder_path}/${LIBUSB1_FOLDER}" "${LIBUSB1_FOLDER}"
+  do_container_copy_license "${work_folder_path}/${LIBICONV_FOLDER}" "${LIBICONV_FOLDER}"
 
   if [ "${target_os}" == "win" ]
   then
@@ -1888,9 +1924,9 @@ __EOF__
 # ^===========================================================================^
 
 # docker_linux64_image="ilegeul/debian:9-gnu-mcu-eclipse"
-docker_linux64_image="ilegeul/centos:6-xbb-v3"
+docker_linux64_image="ilegeul/centos:6-xbb-tex-v1"
 # docker_linux32_image="ilegeul/debian32:9-gnu-mcu-eclipse"
-docker_linux32_image="ilegeul/centos32:6-xbb-v2"
+docker_linux32_image="ilegeul/centos32:6-xbb-tex-v1"
 
 # ----- Build the native distribution. -----
 
