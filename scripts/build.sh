@@ -1223,7 +1223,11 @@ then
 
     echo
     echo "Initial shared libraries..."
-    ls -lR "${install_folder}"/lib*/ "${install_folder}"/bin/*.dll
+    if [ "${target_os}" == "win" ]
+    then
+      ls -lR "${install_folder}"/bin/*.dll
+    fi
+    ls -lR "${install_folder}"/lib*/
 
     echo
     echo "Removing shared libraries..."
@@ -1269,7 +1273,11 @@ then
 
     echo
     echo "Final shared libraries..."
-    ls -lR "${install_folder}"/lib*/ "${install_folder}"/bin/*.dll
+    if [ "${target_os}" == "win" ]
+    then
+      ls -lR "${install_folder}"/bin/*.dll
+    fi
+    ls -lR "${install_folder}"/lib*/
   )
 
   touch "${libftdi_stamp_file}"
