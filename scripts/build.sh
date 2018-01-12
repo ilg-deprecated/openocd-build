@@ -108,13 +108,17 @@ DOWNLOAD_FOLDER_NAME=${DOWNLOAD_FOLDER_NAME:-"download"}
 DOWNLOAD_FOLDER_PATH=${DOWNLOAD_FOLDER_PATH:-"${WORK_FOLDER_PATH}/${DOWNLOAD_FOLDER_NAME}"}
 DEPLOY_FOLDER_NAME=${DEPLOY_FOLDER_NAME:-"deploy"}
 
-
 # ----- Define build Git constants. -----
 
 PROJECT_GIT_FOLDER_NAME="openocd-build.git"
 PROJECT_GIT_FOLDER_PATH="${WORK_FOLDER_PATH}/${PROJECT_GIT_FOLDER_NAME}"
 PROJECT_GIT_DOWNLOADS_FOLDER_PATH="${HOME}/Downloads/${PROJECT_GIT_FOLDER_NAME}"
 PROEJCT_GIT_URL="https://github.com/gnu-mcu-eclipse/${PROJECT_GIT_FOLDER_NAME}"
+
+# ----- Docker images. -----
+
+docker_linux64_image="ilegeul/centos:6-xbb-v1"
+docker_linux32_image="ilegeul/centos32:6-xbb-v1"
 
 # ----- Create Work folder. -----
 
@@ -411,12 +415,12 @@ then
   echo "Check/Preload Docker images..."
 
   echo
-  docker run --interactive --tty ilegeul/debian:9-gnu-mcu-eclipse \
-  lsb_release --description --short
+  docker run --interactive --tty ${docker_linux64_image} \
+    lsb_release --description --short
 
   echo
-  docker run --interactive --tty ilegeul/debian32:9-gnu-mcu-eclipse \
-  lsb_release --description --short
+  docker run --interactive --tty ${docker_linux32_image} \
+    lsb_release --description --short
 
   echo
   docker images
@@ -1930,11 +1934,6 @@ exit 0
 __EOF__
 # The above marker must start in the first column.
 # ^===========================================================================^
-
-# docker_linux64_image="ilegeul/debian:9-gnu-mcu-eclipse"
-docker_linux64_image="ilegeul/centos:6-xbb-tex-v1"
-# docker_linux32_image="ilegeul/debian32:9-gnu-mcu-eclipse"
-docker_linux32_image="ilegeul/centos32:6-xbb-tex-v1"
 
 # ----- Build the native distribution. -----
 
