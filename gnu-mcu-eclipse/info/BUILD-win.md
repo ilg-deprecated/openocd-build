@@ -1,5 +1,5 @@
 
-This package was build with MinGW-w64 on a pair of Debian 9 32/64-bits 
+This package was build with MinGW-w64 on a pair of CentOS 6 32/64-bits 
 Docker containers, running on an OS X machine, using the script provided 
 in the GNU MCU Eclipse [openocd.git](https://github.com/gnu-mcu-eclipse/openocd)
 project.

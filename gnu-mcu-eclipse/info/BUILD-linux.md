@@ -1,5 +1,5 @@
 
-This package was build on a pair of Debian 9 32/64-bits Docker containers,
+This package was build on a pair of CentOS 6 32/64-bits Docker containers,
 running on an OS X machine, using the script provided in the GNU MCU Eclipse
 [openocd.git](https://github.com/gnu-mcu-eclipse/openocd) project.
 
@@ -14,7 +14,7 @@ To run it, first be sure that the packages required in the Prerequisites
 section are installed, then download the script and execute it with bash:
 
 ```console
-$ bash ~/Downloads/openocd-build.git/scripts/build.sh --debian32 --debian64
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --linux32 --linux64
 ```
 
 The output of the build script are two `.tgz` files in the 
