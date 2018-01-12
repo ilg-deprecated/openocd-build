@@ -145,7 +145,7 @@ while [ $# -gt 0 ]
 do
   case "$1" in
 
-    clean|cleanall|build-images|preload-images|bootstrap)
+    clean|cleanall|preload-images|bootstrap)
       ACTION="$1"
       shift
       ;;
@@ -208,7 +208,7 @@ do
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|build-images|bootstrap] [--no-strip] [--without-pdf] [--develop] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|bootstrap] [--no-strip] [--without-pdf] [--develop] [--help]"
       echo
       exit 1
       ;;
@@ -451,32 +451,6 @@ then
 
   exit 0
 
-fi
-
-# ----- Process "build-images" action. -----
-
-if [ "${ACTION}" == "build-images" ]
-then
-  do_host_prepare_docker
-
-  # Remove most build and temporary folders.
-  echo
-  echo "Build Docker images..."
-
-  # Be sure it will not crash on errors, in case the images are already there.
-  set +e
-
-  docker build --tag "ilegeul/debian32:9-gnu-mcu-eclipse" \
-  https://github.com/ilg-ul/docker/raw/master/debian32/9-gnu-mcu-eclipse/Dockerfile
-
-  docker build --tag "ilegeul/debian:9-gnu-mcu-eclipse" \
-  https://github.com/ilg-ul/docker/raw/master/debian/9-gnu-mcu-eclipse/Dockerfile
-
-  docker images
-
-  do_host_stop_timer
-
-  exit 0
 fi
 
 # ----- Prepare Docker, if needed. -----
