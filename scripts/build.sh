@@ -140,6 +140,7 @@ do_no_strip=""
 do_no_pdf=""
 jobs=""
 do_develop=""
+do_debug=""
 
 while [ $# -gt 0 ]
 do
@@ -205,10 +206,15 @@ do
       shift
       ;;
 
+    --debug)
+      do_debug="y"
+      shift
+      ;;
+
     --help)
       echo "Build the GNU MCU Eclipse ${APP_NAME} distributions."
       echo "Usage:"
-      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|bootstrap] [--no-strip] [--without-pdf] [--develop] [--help]"
+      echo "    bash $0 helper_script [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanall|preload-images|bootstrap] [--no-strip] [--without-pdf] [--develop] [--debug] [--help]"
       echo
       exit 1
       ;;
@@ -775,6 +781,7 @@ LIBICONV="${LIBICONV}"
 
 do_no_strip="${do_no_strip}"
 do_no_pdf="${do_no_pdf}"
+do_debug="${do_debug}"
 jobs="${jobs}"
 
 __EOF__
@@ -921,6 +928,12 @@ git_folder_path="${work_folder_path}/${PROJECT_GIT_FOLDER_NAME}"
 
 EXTRA_CFLAGS="-ffunction-sections -fdata-sections -m${target_bits} -pipe"
 EXTRA_CXXFLAGS="-ffunction-sections -fdata-sections -m${target_bits} -pipe"
+if [ "${do_debug}" == "y" ]
+then
+  EXTRA_CFLAGS="${EXTRA_CFLAGS} -g"
+  EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS} -g"
+fi
+
 EXTRA_CPPFLAGS="-I${install_folder}/include"
 EXTRA_LDFLAGS="-L${install_folder}/lib64 -L${install_folder}/lib -static-libstdc++ -Wl,--gc-sections"
 
@@ -1759,6 +1772,17 @@ then
   touch "${openocd_stamp_file}"
 fi
 
+if [ "${do_debug}" == "y" ]
+then
+  rm "${openocd_stamp_file}"
+
+  echo
+  echo "Proceed with the debug session."
+  echo "${install_folder}"/openocd/bin
+  ls -l "${install_folder}"/openocd/bin
+  echo
+  exit 0
+fi
 
 # ----- Copy dynamic libraries to the install bin folder. -----
 
