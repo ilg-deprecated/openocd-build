@@ -1,6 +1,13 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2018-01-23]
+
+- v0.10.0-7-20180123 released
+- move semihosting code to separate files
+- use them in RISC-V and ARM
+- add 'arm semihosting_resexit enable' to allow exit() to return
+
 [2018-01-12]
 
 - v0.10.0-6-20180112 released
