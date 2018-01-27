@@ -35,7 +35,7 @@ IFS=$'\n\t'
 # Prerequisites:
 #
 #   Docker
-#   curl, git, automake, patch, tar, unzip, zip
+#   curl, git, automake, libtool, patch, tar, unzip, pkg-config
 #
 # When running on OS X, a custom Homebrew is required to provide the 
 # missing libraries and TeX binaries.
@@ -177,7 +177,10 @@ do
       DO_BUILD_WIN64="y"
       DO_BUILD_LINUX32="y"
       DO_BUILD_LINUX64="y"
-      DO_BUILD_OSX="y"
+      if [ "$(uname)" == "Darwin" ] 
+      then
+        DO_BUILD_OSX="y"
+      fi
       shift
       ;;
 
@@ -436,29 +439,6 @@ then
   exit 0
 fi
 
-do_host_bootstrap() {
-
-  # Prepare autotools.
-  echo
-  echo "bootstrap..."
-
-  cd "${WORK_FOLDER_PATH}/${OPENOCD_FOLDER_NAME}"
-  rm -f aclocal.m4
-  ./bootstrap
-
-}
-
-if [ \( "${ACTION}" == "bootstrap" \) ]
-then
-
-  do_host_bootstrap
-
-  do_host_stop_timer
-
-  exit 0
-
-fi
-
 # ----- Prepare Docker, if needed. -----
 
 if [ -n "${DO_BUILD_WIN32}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_LINUX64}" ]
@@ -476,6 +456,10 @@ automake --version 2>/dev/null | grep automake
 echo
 echo "Checking host patch..."
 patch --version | grep patch
+
+echo
+echo "Checking host pkg-config..."
+pkg-config --version
 
 echo
 echo "Checking host tar..."
@@ -506,6 +490,29 @@ then
       echo "$0: Error: libtool is required" >&2
       exit 1
   fi
+
+fi
+
+do_host_bootstrap() {
+
+  # Prepare autotools.
+  echo
+  echo "bootstrap..."
+
+  cd "${WORK_FOLDER_PATH}/${OPENOCD_FOLDER_NAME}"
+  rm -f aclocal.m4
+  ./bootstrap
+
+}
+
+if [ \( "${ACTION}" == "bootstrap" \) ]
+then
+
+  do_host_bootstrap
+
+  do_host_stop_timer
+
+  exit 0
 
 fi
 
