@@ -1600,7 +1600,7 @@ then
       export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
       export CXXFLAGS="${EXTRA_CXXFLAGS}"
       export LIBS="-lpthread -lrt -ludev"
-      export LDFLAGS="${EXTRA_LDFLAGS} -static" 
+      export LDFLAGS="${EXTRA_LDFLAGS}" 
        
       bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
       --prefix="${install_folder}/openocd"  \
