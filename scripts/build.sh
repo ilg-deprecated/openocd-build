@@ -942,7 +942,11 @@ then
 fi
 
 EXTRA_CPPFLAGS="-I${install_folder}/include"
-EXTRA_LDFLAGS="-L${install_folder}/lib64 -L${install_folder}/lib -static-libstdc++ -Wl,--gc-sections"
+EXTRA_LDFLAGS="-L${install_folder}/lib64 -L${install_folder}/lib -static-libstdc++"
+if [ "${target_os}" != "osx" ]
+then
+  EXTRA_LDFLAGS+="${EXTRA_LDFLAGS} -Wl,--gc-sections"
+fi
 
 # export PKG_CONFIG_PREFIX="${install_folder}"
 # export PKG_CONFIG="${git_folder_path}/gnu-mcu-eclipse/scripts/cross-pkg-config"
