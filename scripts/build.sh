@@ -1596,7 +1596,7 @@ then
       export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
       export CXXFLAGS="${EXTRA_CXXFLAGS}"
       export LIBS="-lpthread -lrt -ludev"
-      export LDFLAGS="${EXTRA_LDFLAGS}" 
+      export LDFLAGS="${EXTRA_LDFLAGS} -static" 
        
       bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
       --prefix="${install_folder}/openocd"  \
@@ -1664,10 +1664,7 @@ then
 
       export CFLAGS="${EXTRA_CFLAGS}"
       export CXXFLAGS="${EXTRA_CXXFLAGS}"
-      if [ "${target_os}" != "osx" ]
-      then
-        export LDFLAGS="${EXTRA_LDFLAGS} -static"
-      fi
+      export LDFLAGS="${EXTRA_LDFLAGS}"
       export LIBS="-lobjc"
       export JAYLINK_CFLAGS='${EXTRA_CFLAGS} -Wall -Wextra -fvisibility=hidden'
       
