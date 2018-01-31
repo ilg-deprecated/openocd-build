@@ -1668,6 +1668,7 @@ then
       then
         export LDFLAGS="${EXTRA_LDFLAGS} -static"
       fi
+      export LIBS="-lobjc"
       export JAYLINK_CFLAGS='${EXTRA_CFLAGS} -Wall -Wextra -fvisibility=hidden'
       
       bash "${work_folder_path}/${OPENOCD_FOLDER_NAME}/configure" \
