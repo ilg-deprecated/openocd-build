@@ -1364,7 +1364,7 @@ then
 
       cd "${build_folder_path}/${HIDAPI_FOLDER}/${HIDAPI_TARGET}"
 
-      export CFLAGS="${EXTRA_CFLAGS}" \
+      export CFLAGS="${EXTRA_CFLAGS}"
 
       make -f Makefile.mingw \
         CC=${cross_compile_prefix}-gcc \
