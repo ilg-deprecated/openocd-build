@@ -9,14 +9,18 @@ maintained by [SiFive](https://www.sifive.com).
 
 The current version is based on 
 
-- OpenOCD version 0.10.0-development, commit [1c2e3d4](https://github.com/gnu-mcu-eclipse/openocd/commit/1c2e3d41de30c5e47d3fc8eda3de0a0a8229895a) from Dec 20th, 2017
-- RISC-V commit [1ddbe70](https://github.com/gnu-mcu-eclipse/openocd/commit/1ddbe7044309f2c8642d290e489fa7ddf6a670ef) from Dec 29th, 2017
+- OpenOCD version 0.10.0-development, commit [7b94ae9](https://github.com/gnu-mcu-eclipse/openocd/commit/7b94ae9e520877e7f2341b48b3bd0c0d1ca8a14b) from Apr 27th, 2018
+- RISC-V commit [dabaf17](https://github.com/gnu-mcu-eclipse/openocd/commit/dabaf170bac10975ac1773adb6367bc1ffc0cd6a) from May 9th, 2018
 
 ## Changes
 
+Compared to the master OpenCOD, the changes are:
+
+- ARM semihosting uses the new separate implementation; there should be no functional differences.
+
 Compared to the RISC-V version, the changes are:
 
-* some of the GDB error processing patches added by RISC-V in `server/gdb_server.c` were reversed, since they interfered with other targets
+- none functionally relevant
 
 ## Documentation
 
