@@ -548,6 +548,13 @@ function do_hidapi()
           do_copy_libudev
         fi
 
+        if [ "${TARGET_OS}" == "macos" ]
+        then
+          # GCC fails to compile Darwin USB.h:
+          # error: too many #pragma options align=reset
+          export CC=gcc
+        fi
+
         echo
         echo "Running hidapi bootstrap..."
 
