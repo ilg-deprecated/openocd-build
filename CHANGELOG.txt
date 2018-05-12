@@ -5,6 +5,7 @@ The changes applied to the OpenOCD master branch, and the releases, are:
 
 - v0.10.0-8-20180512 released
 - use new build scripts based on XBB
+- update to latest commits (OpenOCD April 27th, RISC-V May 8th)
 
 [2018-01-23]
 
