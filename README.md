@@ -15,8 +15,8 @@ for GNU/Linux and Windows or a custom HomeBrew for MacOS).
 
 ## Repository URLs
 
-- the [GNU MCU Eclipse OpenOCD](https://github.com/gnu-mcu-eclipse/openocd.git) 
-Git remote URL to clone from is https://github.com/gnu-mcu-eclipse/openocd https://github.com/gnu-mcu-eclipse/openocd.git
+- the [GNU MCU Eclipse OpenOCD](https://github.com/gnu-mcu-eclipse/openocd) 
+Git remote URL to clone from is https://github.com/gnu-mcu-eclipse/openocd.git
 - the [OpenOCD](https://sourceforge.net/p/openocd/code/) Git remote URL is
 https://git.code.sf.net/p/openocd/code
 - the [RISC-V OpenOCD](https://github.com/riscv/riscv-openocd) Git remote URL
