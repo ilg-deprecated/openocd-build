@@ -65,7 +65,7 @@ function do_libusb1()
             --enable-shared \
             --enable-static
           
-        ) | tee "${INSTALL_FOLDER_PATH}"/configure-libusb1-output.txt
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}"/configure-libusb1-output.txt
         cp "config.log" "${INSTALL_FOLDER_PATH}"/config-libusb1-log.txt
 
       fi
@@ -77,8 +77,13 @@ function do_libusb1()
         # Build. 
         # WARNING: Parallel build fails!
         make 
-        make install-strip
-      ) | tee "${INSTALL_FOLDER_PATH}"/make-libusb1-output.txt
+        if [ "${WITH_STRIP}" == "y" ]
+        then
+          make install-strip
+        else
+          make install
+        fi
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}"/make-libusb1-output.txt
     )
 
     touch "${libusb1_stamp_file_path}"
@@ -138,7 +143,7 @@ function do_libusb0()
             --disable-shared \
             --enable-static 
           
-        ) | tee "${INSTALL_FOLDER_PATH}/configure-libusb0-output.txt"
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/configure-libusb0-output.txt"
         cp "config.log" "${INSTALL_FOLDER_PATH}"/config-libusb0-log.txt
 
       fi
@@ -149,8 +154,13 @@ function do_libusb0()
       (
         # Build.
         make ${JOBS}
-        make install-strip
-      ) | tee "${INSTALL_FOLDER_PATH}/make-libusb0-output.txt"
+        if [ "${WITH_STRIP}" == "y" ]
+        then
+          make install-strip
+        else
+          make install
+        fi
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-libusb0-output.txt"
     )
 
     touch "${libusb0_stamp_file_path}"
@@ -216,7 +226,7 @@ function do_libusb_w32()
             host_prefix_x86=i686-w64-mingw32 \
             dll
           
-      ) | tee "${INSTALL_FOLDER_PATH}/make-libusb-w32-output.txt"
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-libusb-w32-output.txt"
 
       mkdir -p "${INSTALL_FOLDER_PATH}/bin"
       # Skipping it does not remove the reference from openocd, so for the
@@ -313,7 +323,7 @@ function do_libftdi()
           "${WORK_FOLDER_PATH}/${LIBFTDI_SRC_FOLDER_NAME}"
 
         fi
-      ) | tee "${INSTALL_FOLDER_PATH}/configure-libftdi-output.txt"
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/configure-libftdi-output.txt"
 
       echo
       echo "Running libftdi make..."
@@ -381,7 +391,7 @@ function do_libftdi()
         fi
         ls -lR "${INSTALL_FOLDER_PATH}"/lib*/
 
-      ) | tee "${INSTALL_FOLDER_PATH}/make-libftdi-output.txt"
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-libftdi-output.txt"
     )
 
     touch "${libftdi_stamp_file_path}"
@@ -448,7 +458,7 @@ function do_libiconv()
             --enable-static \
             --disable-nls
 
-        ) | tee "${INSTALL_FOLDER_PATH}/configure-libiconv-output.txt"
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/configure-libiconv-output.txt"
         cp "config.log" "${INSTALL_FOLDER_PATH}"/config-libiconv-log.txt
 
       fi
@@ -459,8 +469,13 @@ function do_libiconv()
       (
         # Build.
         make ${JOBS}
-        make install-strip
-      ) | tee "${INSTALL_FOLDER_PATH}/make-libiconv-output.txt"
+        if [ "${WITH_STRIP}" == "y" ]
+        then
+          make install-strip
+        else
+          make install
+        fi
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-libiconv-output.txt"
     )
 
     touch "${libiconv_stamp_file_path}"
@@ -588,7 +603,7 @@ function do_hidapi()
             --disable-shared \
             --enable-static 
         
-        ) | tee "${INSTALL_FOLDER_PATH}/configure-hidapi-output.txt"
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/configure-hidapi-output.txt"
         cp "config.log" "${INSTALL_FOLDER_PATH}"/config-hidapi-log.txt
 
         echo
@@ -597,8 +612,13 @@ function do_hidapi()
         (
           # Build.
           make ${JOBS}
-          make install-strip
-        ) | tee "${INSTALL_FOLDER_PATH}/make-hidapi-output.txt"
+          if [ "${WITH_STRIP}" == "y" ]
+          then
+            make install-strip
+          else
+            make install
+          fi
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-hidapi-output.txt"
 
       fi
 

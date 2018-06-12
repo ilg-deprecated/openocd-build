@@ -195,7 +195,7 @@ function do_openocd()
             --disable-zy1000-master \
             --disable-zy1000 \
 
-        ) | tee "${INSTALL_FOLDER_PATH}"/configure-openocd-output.txt
+        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}"/configure-openocd-output.txt
         cp "config.log" "${INSTALL_FOLDER_PATH}"/config-openocd-log.txt
 
       fi
@@ -245,7 +245,7 @@ function do_openocd()
             "${APP_PREFIX}"/bin
         fi
 
-      ) | tee "${INSTALL_FOLDER_PATH}"/make-newlib-output.txt
+      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}"/make-openocd-output.txt
     )
 
     if [ "${TARGET_OS}" != "win" ]
