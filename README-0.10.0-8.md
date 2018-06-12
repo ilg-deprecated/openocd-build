@@ -14,7 +14,7 @@ The current version is based on
 
 ## Changes
 
-Compared to the master OpenCOD, the changes are:
+Compared to the master OpenOCD, the changes are:
 
 - ARM semihosting uses the new separate implementation; there should be no functional differences.
 
