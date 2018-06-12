@@ -139,7 +139,7 @@ function do_openocd()
           bash "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}"/configure --help
 
           bash "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}"/configure \
-            --prefix="${INSTALL_FOLDER_PATH}/openocd"  \
+            --prefix="${INSTALL_FOLDER_PATH}/${APP_LC_NAME}"  \
             \
             --build=${BUILD} \
             --host=${HOST} \
@@ -147,10 +147,10 @@ function do_openocd()
             \
             --datarootdir="${INSTALL_FOLDER_PATH}" \
             --localedir="${APP_PREFIX}"/share/locale  \
-            --mandir="${APP_PREFIX}"/share/doc/man  \
-            --pdfdir="${APP_PREFIX}"/share/doc/pdf  \
-            --infodir="${APP_PREFIX}"/share/doc/info \
-            --docdir="${APP_PREFIX}"/share/doc  \
+            --mandir="${APP_PREFIX_DOC}"/man  \
+            --pdfdir="${APP_PREFIX_DOC}"/pdf  \
+            --infodir="${APP_PREFIX_DOC}"/info \
+            --docdir="${APP_PREFIX_DOC}"  \
             \
             --disable-wextra \
             --disable-werror \
