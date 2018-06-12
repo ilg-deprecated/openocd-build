@@ -122,7 +122,6 @@ do
 
     --debug)
       IS_DEBUG="y"
-      WITH_STRIP="n"
       shift
       ;;
 
@@ -134,6 +133,11 @@ do
   esac
 
 done
+
+if [ "${IS_DEBUG}" == "y" ]
+then
+  WITH_STRIP="n"
+fi
 
 # -----------------------------------------------------------------------------
 
