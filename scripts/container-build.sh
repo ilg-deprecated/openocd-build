@@ -301,6 +301,28 @@ then
   HIDAPI_VERSION="0.8.0-rc1"
 
   # ---------------------------------------------------------------------------
+elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-9 ]]
+then
+
+  # ---------------------------------------------------------------------------
+
+  OPENOCD_VERSION="0.10.0-9"
+ 
+  OPENOCD_GIT_BRANCH=${OPENOCD_GIT_BRANCH:-"gnu-mcu-eclipse-dev"}
+  OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"95de7241b0bbc950c58f689683096df8bbff9583"}
+  
+  BUILD_GIT_PATH="${WORK_FOLDER_PATH}"/build.git
+
+  # ---------------------------------------------------------------------------
+
+  LIBUSB1_VERSION="1.0.20"
+  LIBUSB0_VERSION="0.1.5"
+  LIBUSB_W32_VERSION="1.2.6.0"
+  LIBFTDI_VERSION="1.2"
+  LIBICONV_VERSION="1.15"
+  HIDAPI_VERSION="0.8.0-rc1"
+
+  # ---------------------------------------------------------------------------
 else
   echo "Unsupported version ${RELEASE_VERSION}."
   exit 1
