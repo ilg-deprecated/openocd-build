@@ -9,20 +9,25 @@ GNU MCU Eclipse OpenOCD generally follows the official
 [RISC-V distribution](https://github.com/riscv/riscv-openocd) 
 maintained by [SiFive](https://www.sifive.com).
 
+However some of the RISC-V patches to the common files were considered harmful 
+and were reversed, so the common files generaly track the original OpenCOD 
+distribution, not the RISC-V fork.
+
 The current version is based on 
 
 - OpenOCD version 0.10.0-development, commit 
-[0612315](https://github.com/gnu-mcu-eclipse/openocd/commit/06123153f38280608b1e92dcb766b31ade7e4668) 
-from June 6th, 2018
+[05e0d633b](https://github.com/gnu-mcu-eclipse/openocd/commit/05e0d633bad9e8b0bdfaf16fc76ab1f9d9419d8b) 
+from Oct 16th, 2018
 - RISC-V commit 
-[32f6d6a](https://github.com/gnu-mcu-eclipse/openocd/commit/32f6d6a857ed9548428dd095e51a646e7fbab9de) 
-from June 12th, 2018
+[35eed36ff](https://github.com/gnu-mcu-eclipse/openocd/commit/35eed36ffdd082f5abfc16d4cc93511f6e225284) 
+from Sep 18th, 2018
 
 ## Changes
 
 Compared to the master OpenOCD, the changes are:
 
-- ARM semihosting uses the new separate implementation; there should be no functional differences.
+- ARM semihosting uses the new separate implementation; there should be no 
+functional differences.
 
 Compared to the RISC-V version, the changes are:
 

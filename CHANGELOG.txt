@@ -1,13 +1,15 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2018-10-16]
+- v0.10.0-9-20181016 released
+
 [2018-06-19]
 
 - update to latest RISC-V commits, including semihosting
 
 [2018-06-12]
 
-- prepare v0.10.0-9
 - use separate README-*.md files
 - update to latest commits, which include new semihosting (OpenOCD June 6th, RISC-V June 12th)
 

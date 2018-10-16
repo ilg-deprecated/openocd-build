@@ -98,7 +98,7 @@ repository and the RISC-V repository:
 - checkout `riscv/riscv`
 - merge `riscv` (and resolve conflicts)
 - add a tag like `v0.10.0-8-20180512` after each public release (mind the 
-inner version `-3-`)
+inner version `-8-`)
 
 ### Prepare release
 
