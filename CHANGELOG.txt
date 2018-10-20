@@ -1,7 +1,14 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2018-10-20]
+
+- v0.10.0-10-20181020 released
+- rerun, to fix the macOS file dates
+- update the -bit to singular
+
 [2018-10-16]
+
 - v0.10.0-9-20181016 released
 - update to latest master
 - update to latest RISC-V
@@ -125,7 +132,7 @@ The changes applied to the OpenOCD master branch, and the releases, are:
 - the three separate build scripts were deprecated, and a single script,
 using Docker, was added to the main gnuarmeclipse-se.git/scripts.
 
-- the greeting shows 32-bits or 64-bits (plural for bits).
+- the greeting shows 32-bits or 64-bits (plural for bits). (wrong!)
 
 [2015-03-24]
 
