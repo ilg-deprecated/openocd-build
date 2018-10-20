@@ -168,6 +168,7 @@ To copy the files from the build machine to the current development
 machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
+$ cd ${HOME}/Work/openocd-0.10.0-8/deploy
 $ scp * ilg@ilg-mbp.local:Downloads
 ```
 
@@ -181,6 +182,7 @@ To build the latest macOS version, with the same timestamp as the
 previous build:
 
 ```console
+$ rm -rf ${HOME}/Work/openocd-*
 $ caffeinate bash ~/Downloads/openocd-build.git/scripts/build.sh --osx --date YYYYMMDD-HHMM
 ```
 
@@ -207,6 +209,7 @@ To copy the files from the build machine to the current development
 machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
+$ cd ${HOME}/Work/openocd-0.10.0-8/deploy
 $ scp * ilg@ilg-mbp.local:Downloads
 ```
 
@@ -335,7 +338,7 @@ look like:
 
 ```console
 $ /Users/ilg/Library/xPacks/\@gnu-mcu-eclipse/openocd/0.10.0-8.1/.content/bin/openocd --version
-GNU MCU Eclipse 64-bits Open On-Chip Debugger 0.10.0+dev-00487-gaf359c18 (2018-05-12-23:16)
+GNU MCU Eclipse 64-bit Open On-Chip Debugger 0.10.0+dev-00487-gaf359c18 (2018-05-12-23:16)
 ```
 
 ## More build details
