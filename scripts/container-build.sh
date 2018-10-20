@@ -329,6 +329,8 @@ then
   # ---------------------------------------------------------------------------
   # Same as before, only a rerun.
 
+  OPENOCD_VERSION="0.10.0-10"
+
   OPENOCD_GIT_BRANCH=${OPENOCD_GIT_BRANCH:-"gnu-mcu-eclipse-dev"}
   OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"aa6c7e9b884b028468b667ba3fab4f609c70471d"}
   
