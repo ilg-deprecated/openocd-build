@@ -281,7 +281,7 @@ else
   
   if [ "${DO_BUILD_LINUX64}" == "y" ]
   then
-    host_build_target "Creating the GNU/Linux 64-bits distribution..." \
+    host_build_target "Creating the GNU/Linux 64-bit distribution..." \
       --script "${CONTAINER_WORK_FOLDER_PATH}/${CONTAINER_BUILD_SCRIPT_REL_PATH}" \
       --env-file "${ENV_FILE}" \
       --target-os linux \
