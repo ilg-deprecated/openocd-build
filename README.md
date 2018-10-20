@@ -133,11 +133,12 @@ Before starting a multi-platform build, check if Docker is started:
 $ docker info
 ```
 
-To build both the 32/64-bits Windows and GNU/Linux versions, use `--all`; 
+To build both the 32/64-bit Windows and GNU/Linux versions, use `--all`; 
 to build selectively, use `--linux64 --win64` or `--linux32 --win32` 
 (GNU/Linux can be built alone; Windows also requires the GNU/Linux build).
 
 ```console
+$ rm -rf ${HOME}/Work/openocd-*
 $ bash ~/Downloads/openocd-build.git/scripts/build.sh --all
 ```
 

@@ -275,7 +275,7 @@ else
     fi
   fi
 
-  # ----- Build the GNU/Linux 64-bits distribution. ---------------------------
+  # ----- Build the GNU/Linux 64-bit distribution. ---------------------------
 
   linux_distribution="centos"
   
@@ -291,11 +291,11 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the Windows 64-bits distribution. -----------------------------
+  # ----- Build the Windows 64-bit distribution. -----------------------------
 
   if [ "${DO_BUILD_WIN64}" == "y" ]
   then
-    host_build_target "Creating the Windows 64-bits distribution..." \
+    host_build_target "Creating the Windows 64-bit distribution..." \
       --script "${CONTAINER_WORK_FOLDER_PATH}/${CONTAINER_BUILD_SCRIPT_REL_PATH}" \
       --env-file "${ENV_FILE}" \
       --target-os win \
@@ -305,11 +305,11 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the GNU/Linux 32-bits distribution. ---------------------------
+  # ----- Build the GNU/Linux 32-bit distribution. ---------------------------
 
   if [ "${DO_BUILD_LINUX32}" == "y" ]
   then
-    host_build_target "Creating the GNU/Linux 32-bits distribution..." \
+    host_build_target "Creating the GNU/Linux 32-bit distribution..." \
       --script "${CONTAINER_WORK_FOLDER_PATH}/${CONTAINER_BUILD_SCRIPT_REL_PATH}" \
       --env-file "${ENV_FILE}" \
       --target-os linux \
@@ -319,12 +319,12 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the Windows 32-bits distribution. -----------------------------
+  # ----- Build the Windows 32-bit distribution. -----------------------------
 
-  # Since the actual container is a 32-bits, use the debian32 binaries.
+  # Since the actual container is a 32-bit, use the debian32 binaries.
   if [ "${DO_BUILD_WIN32}" == "y" ]
   then
-    host_build_target "Creating the Windows 32-bits distribution..." \
+    host_build_target "Creating the Windows 32-bit distribution..." \
       --script "${CONTAINER_WORK_FOLDER_PATH}/${CONTAINER_BUILD_SCRIPT_REL_PATH}" \
       --env-file "${ENV_FILE}" \
       --target-os win \

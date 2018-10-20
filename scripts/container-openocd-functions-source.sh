@@ -226,7 +226,7 @@ function do_openocd()
 
         if [ "${TARGET_OS}" == "linux" ]
         then
-          # Workaround to Docker error on 32-bits image:
+          # Workaround to Docker error on 32-bit image:
           # stat: Value too large for defined data type
           rm -rf /tmp/openocd
           cp "${APP_PREFIX}"/bin/openocd /tmp/openocd
