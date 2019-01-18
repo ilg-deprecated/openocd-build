@@ -99,6 +99,16 @@ of this version.
 Add a new set of definitions in the `scripts/container-build.sh`, with 
 the versions of various components.
 
+### Update README.md
+
+If necessary, update the main README.md with informations related to the
+build. Information related to the content should be updated in 
+the README-<version>.md.
+
+### Create README-<version>.md
+
+Create a copy of the previous one and update.
+
 ### Update CHANGELOG.txt
 
 Check `openocd-build.git/CHANGELOG.txt` and add the new release.
