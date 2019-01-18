@@ -5,9 +5,6 @@ These are the scripts and additional files required to build the
 
 This release follows the official [OpenOCD](http://openocd.org).
 
-The RISC-V code is not yet in the master repository, and separate 
-merges are required.
-
 The build scripts use the 
 [xPack Build Box (XBB)](https://github.com/xpack/xpack-build-box), 
 a set of elaborate build environments based on GCC 7.2 (Docker containers
@@ -19,19 +16,13 @@ for GNU/Linux and Windows or a custom HomeBrew for MacOS).
 Git remote URL to clone from is https://github.com/gnu-mcu-eclipse/openocd.git
 - the [OpenOCD](https://sourceforge.net/p/openocd/code/) Git remote URL is
 https://git.code.sf.net/p/openocd/code
-- the [RISC-V OpenOCD](https://github.com/riscv/riscv-openocd) Git remote URL
-is https://github.com/riscv/riscv-openocd.git
 
 Add a remote named `openocd`, and pull the OpenOCD master → master.
-Add a remote named `riscv`, and pull the RISC_V riscv → riscv.
 
 ## Changes
 
 Compared to the original OpenOCD distribution, there should be no 
 functional changes.
-
-However, since the RISC-V sources are sometimes contradictory, occasionally 
-they may interfere with the functionality expected for other targets.
 
 ## How to build
 
@@ -95,8 +86,6 @@ repository and the RISC-V repository:
 - pull from `openocd/master`
 - checkout `gnu-mcu-eclipse-dev`
 - merge `master`
-- checkout `riscv/riscv`
-- merge `riscv` (and resolve conflicts)
 - add a tag like `v0.10.0-8-20180512` after each public release (mind the 
 inner version `-8-`)
 
