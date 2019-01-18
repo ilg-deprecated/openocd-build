@@ -101,11 +101,11 @@ the versions of various components.
 
 ### Update README.md
 
-If necessary, update the main README.md with informations related to the
+If necessary, update the main `README.md` with informations related to the
 build. Information related to the content should be updated in 
-the README-<version>.md.
+the `README-<version>.md`.
 
-### Create README-<version>.md
+### Create README-&lt;version&gt;.md
 
 Create a copy of the previous one and update.
 
