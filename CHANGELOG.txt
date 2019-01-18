@@ -1,6 +1,12 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
+[2019-01-18]
+
+- v0.10.0-11-20190118 released
+- update to latest master from Jan 16, 2019
+- RISC-V specific patches were removed, only upstreamed functionality retained.
+
 [2018-10-20]
 
 - v0.10.0-10-20181020 released
