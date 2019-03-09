@@ -168,7 +168,7 @@ machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
 $ cd ${HOME}/Work/openocd-0.10.0-8/deploy
-$ scp * ilg@ilg-mbp.local:Downloads
+$ scp * ilg@ilg-mbp.local:Downloads/gme-binaries/oocd
 ```
 
 #### Build the macOS binary
@@ -209,7 +209,7 @@ machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
 $ cd ${HOME}/Work/openocd-0.10.0-8/deploy
-$ scp * ilg@ilg-mbp.local:Downloads
+$ scp * ilg@ilg-mbp.local:Downloads/gme-binaries/oocd
 ```
 
 ### Subsequent runs
