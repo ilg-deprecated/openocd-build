@@ -19,21 +19,7 @@ https://git.code.sf.net/p/openocd/code
 
 Add a remote named `openocd`, and pull the OpenOCD master → master.
 
-## Changes
-
-Compared to the original OpenOCD distribution, there should be no 
-functional changes.
-
-## How to build
-
-### Prerequisites
-
-The prerequisites are common to all binary builds. Please follow the 
-instructions in the separate 
-[Prerequisites for building binaries](https://gnu-mcu-eclipse.github.io/developer/build-binaries-prerequisites-xbb/) 
-page and return when ready.
-
-### Download the build scripts repo
+## Download the build scripts repo
 
 The build script is available from GitHub and can be 
 [viewed online](https://github.com/gnu-mcu-eclipse/openocd-build/blob/master/scripts/build.sh).
@@ -48,12 +34,34 @@ $ git clone --recurse-submodules https://github.com/gnu-mcu-eclipse/openocd-buil
   ~/Downloads/openocd-build.git
 ```
 
-### Check the script
+To use the `develop` branch of the build scripts, use:
 
-The script creates a temporary build `Work/openocd-${version}` folder in 
+```console
+$ rm -rf ~/Downloads/openocd-build.git
+$ git clone --recurse-submodules -b develop https://github.com/gnu-mcu-eclipse/openocd-build.git \
+  ~/Downloads/openocd-build.git
+```
+
+## The `Work` folder
+
+The script creates a temporary build `Work/qemu-${version}` folder in 
 the user home. Although not recommended, if for any reasons you need to 
-change this, you can redefine `WORK_FOLDER_PATH` variable before invoking 
-the script.
+change the location of the `Work` folder, 
+you can redefine `WORK_FOLDER_PATH` variable before invoking the script.
+
+## Changes
+
+Compared to the original OpenOCD distribution, there should be no 
+functional changes.
+
+## How to build distributions
+
+### Prerequisites
+
+The prerequisites are common to all binary builds. Please follow the 
+instructions in the separate 
+[Prerequisites for building binaries](https://gnu-mcu-eclipse.github.io/developer/build-binaries-prerequisites-xbb/) 
+page and return when ready.
 
 ### Preload the Docker images
 
@@ -229,17 +237,26 @@ equivalent to `--linux64 --win64`.
 
 #### clean
 
-To remove most build files, use:
+To remove most build temporary files, use:
 
 ```console
-$ bash ~/Downloads/openocd-build.git/scripts/build.sh clean
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --all clean
 ```
 
-To also remove the repository and the output files, use:
+To also remove the library build temporary files, use:
 
 ```console
-$ bash ~/Downloads/openocd-build.git/scripts/build.sh cleanall
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --all cleanlibs
 ```
+
+To remove all temporary files, use:
+
+```console
+$ bash ~/Downloads/openocd-build.git/scripts/build.sh --all cleanall
+```
+
+Instead of `--all`, any combination of `--win32 --win64 --linux32 --linux64`
+will remove the more specific folders.
 
 For production builds it is recommended to completely remove the build folder.
 
