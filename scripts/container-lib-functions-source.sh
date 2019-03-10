@@ -176,7 +176,7 @@ function do_libusb_w32()
 {
   # https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/
   # 1.2.6.0 from 2012-01-17
-  # LIBUSB_W32_VERSION="1.2.6.0"
+  # LIBUSB_W32_VERSION="1.2.6.0" # +PATCH!
 
   LIBUSB_W32_PREFIX="libusb-win32"
   LIBUSB_W32="${LIBUSB_W32_PREFIX}-${LIBUSB_W32_VERSION}"
@@ -219,7 +219,11 @@ function do_libusb_w32()
       dos2unix src/install.c
       dos2unix src/install_filter_win.c
       dos2unix src/registry.c
-      patch -p1 < "${BUILD_GIT_PATH}/patches/${LIBUSB_W32}-mingw-w64.patch"
+
+      if [ -f "${BUILD_GIT_PATH}/patches/${LIBUSB_W32_PATCH}" ]
+      then
+        patch -p0 < "${BUILD_GIT_PATH}/patches/${LIBUSB_W32_PATCH}"
+      fi
 
       # Build.
       (
@@ -262,7 +266,7 @@ function do_libftdi()
 {
   # http://www.intra2net.com/en/developer/libftdi/download.php
   # 1.2 (no date)
-  # LIBFTDI_VERSION="1.2"
+  # LIBFTDI_VERSION="1.2" # +PATCH!
 
   LIBFTDI_SRC_FOLDER_NAME="libftdi1-${LIBFTDI_VERSION}"
   LIBFTDI_FOLDER_NAME="${LIBFTDI_SRC_FOLDER_NAME}"
@@ -278,7 +282,10 @@ function do_libftdi()
     cd "${SOURCES_FOLDER_PATH}"
 
     download_and_extract "${libftdi_url}" "${libftdi_archive}" \
-      "${LIBFTDI_SRC_FOLDER_NAME}"
+      "${LIBFTDI_SRC_FOLDER_NAME}" \
+      "${LIBFTDI_PATCH}"
+
+    # unset PKG_CONFIG_LIBDIR
 
     (
       mkdir -p "${BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"

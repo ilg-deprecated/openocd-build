@@ -271,6 +271,9 @@ OPENOCD_PROJECT_NAME="openocd"
 OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-""}
 README_OUT_FILE_NAME="README-${RELEASE_VERSION}.md"
 
+LIBFTDI_PATCH=""
+LIBUSB_W32_PATCH=""
+
 # Keep them in sync with combo archive content.
 if [[ "${RELEASE_VERSION}" =~ 0\.10\.0-7 ]]
 then
@@ -290,6 +293,9 @@ then
   LIBFTDI_VERSION="1.2"
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
+
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
 
   # ---------------------------------------------------------------------------
 elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-8 ]]
@@ -311,6 +317,9 @@ then
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
 
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
+
   # ---------------------------------------------------------------------------
 elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-9 ]]
 then
@@ -330,6 +339,9 @@ then
   LIBFTDI_VERSION="1.2"
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
+
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
 
   # ---------------------------------------------------------------------------
 elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-10 ]]
@@ -352,6 +364,9 @@ then
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
 
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
+
   # ---------------------------------------------------------------------------
 elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-11 ]]
 then
@@ -373,6 +388,9 @@ then
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
 
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
+
   # ---------------------------------------------------------------------------
 elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-12 ]]
 then
@@ -393,6 +411,9 @@ then
   LIBFTDI_VERSION="1.2"
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
+
+  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
 
   # ---------------------------------------------------------------------------
 else
