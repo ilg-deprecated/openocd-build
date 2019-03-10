@@ -13,8 +13,8 @@ function prepare_extras()
 
   EXTRA_CPPFLAGS=""
 
-  EXTRA_CFLAGS="-ffunction-sections -fdata-sections -m${TARGET_BITS} -pipe"
-  EXTRA_CXXFLAGS="-ffunction-sections -fdata-sections -m${TARGET_BITS} -pipe"
+  EXTRA_CFLAGS="-ffunction-sections -fdata-sections -pipe"
+  EXTRA_CXXFLAGS="-ffunction-sections -fdata-sections -pipe"
 
   EXTRA_LDFLAGS_LIB=""
   EXTRA_LDFLAGS="${EXTRA_LDFLAGS_LIB}"
