@@ -324,12 +324,11 @@ elif [[ "${RELEASE_VERSION}" =~ 0\.10\.0-12 ]]
 then
 
   # ---------------------------------------------------------------------------
-  # Same as before, only a rerun.
-
+  
   OPENOCD_VERSION="0.10.0-12"
 
   OPENOCD_GIT_BRANCH=${OPENOCD_GIT_BRANCH:-"gnu-mcu-eclipse-dev"}
-  OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"dd1d90111a5a91e56c7fd5621d3efff63bbb6015"}
+  OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"4a6f93c96146f3c06e61d89377d76e84915af202"}
   
   # ---------------------------------------------------------------------------
 
