@@ -137,7 +137,7 @@ function do_openocd()
             --disable-werror \
             --enable-dependency-tracking \
             \
-            --enable-branding="GNU MCU Eclipse" \
+            --enable-branding="${BRANDING}" \
             \
             --enable-aice \
             ${AMTJTAGACCEL} \
