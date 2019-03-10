@@ -47,6 +47,15 @@ function prepare_extras()
     EXTRA_LDFLAGS_APP="${EXTRA_LDFLAGS} -static-libstdc++ -Wl,--gc-sections"
   elif [ "${TARGET_PLATFORM}" == "darwin" ]
   then
+    # For consistency, even on macOS, prefer GCC 7 over clang.
+    # (Also because all GCC pre 7 versions fail with 'bracket nesting level 
+    # exceeded' with clang; not to mention the too many warnings.)
+    # However the off-the-shelf GCC 7 has a problem, and requires patching,
+    # otherwise the generated GDB fails with SIGABRT; to test use 'set 
+    # language auto').
+    # export CC=gcc-7.2.0-patched
+    # export CXX=g++-7.2.0-patched
+    # On the new macOS XBB, GCC 7.4.0 is used.
     export CC="gcc-7"
     export CXX="g++-7"
     # Note: macOS linker ignores -static-libstdc++, so 
