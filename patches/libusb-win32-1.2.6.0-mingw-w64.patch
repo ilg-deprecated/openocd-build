@@ -1,6 +1,6 @@
-diff -purN libusb-win32-src-1.2.6.0/src/install.c libusb-win32-src-1.2.6.0-mingw-w64/src/install.c
---- libusb-win32-src-1.2.6.0/src/install.c	2011-10-28 14:34:08.000000000 +0200
-+++ libusb-win32-src-1.2.6.0-mingw-w64/src/install.c	2013-05-30 11:28:54.000000000 +0200
+diff -purN src/install.c src/install-patched.c
+--- src/install.c	2011-10-28 14:34:08.000000000 +0200
++++ src/install-patched.c	2013-05-30 11:28:54.000000000 +0200
 @@ -31,14 +31,8 @@
  #include <conio.h>
  #include <ctype.h>
@@ -17,9 +17,9 @@ diff -purN libusb-win32-src-1.2.6.0/src/install.c libusb-win32-src-1.2.6.0-mingw
  #define strlwr(p) _strlwr(p)
  #endif
  
-diff -purN libusb-win32-src-1.2.6.0/src/install_filter_win.c libusb-win32-src-1.2.6.0-mingw-w64/src/install_filter_win.c
---- libusb-win32-src-1.2.6.0/src/install_filter_win.c	2010-09-22 22:35:52.000000000 +0200
-+++ libusb-win32-src-1.2.6.0-mingw-w64/src/install_filter_win.c	2013-05-30 11:39:19.000000000 +0200
+diff -purN src/install_filter_win.c src/install_filter_win-patched.c
+--- src/install_filter_win.c	2010-09-22 22:35:52.000000000 +0200
++++ src/install_filter_win-patched.c	2013-05-30 11:39:19.000000000 +0200
 @@ -21,15 +21,9 @@
  
  #include <windows.h>
@@ -39,9 +39,9 @@ diff -purN libusb-win32-src-1.2.6.0/src/install_filter_win.c libusb-win32-src-1.
  #endif
  
  #include <commdlg.h>
-diff -purN libusb-win32-src-1.2.6.0/src/registry.c libusb-win32-src-1.2.6.0-mingw-w64/src/registry.c
---- libusb-win32-src-1.2.6.0/src/registry.c	2010-09-23 17:40:50.000000000 +0200
-+++ libusb-win32-src-1.2.6.0-mingw-w64/src/registry.c	2013-05-30 11:29:22.000000000 +0200
+diff -purN src/registry.c src/registry-patched.c
+--- src/registry.c	2010-09-23 17:40:50.000000000 +0200
++++ src/registry-patched.c	2013-05-30 11:29:22.000000000 +0200
 @@ -24,14 +24,8 @@
  #include <stdlib.h>
  #include <string.h>
