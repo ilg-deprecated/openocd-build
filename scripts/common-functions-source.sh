@@ -67,7 +67,15 @@ function prepare_extras()
   fi
   set -u
 
+  # A colon-separated list of directories to be searched for .pc files 
+  # before the default locations.
   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-""}
+
+  # A colon-separated list of directorie to replace the default pkg-config 
+  # search path, usually defined at build time.
+  # Exclude system locations from searches.
+  # https://bugs.freedesktop.org/show_bug.cgi?id=88992
+  PKG_CONFIG_LIBDIR=":"
 
   set +u
   echo
