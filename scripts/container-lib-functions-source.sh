@@ -285,8 +285,6 @@ function do_libftdi()
       "${LIBFTDI_SRC_FOLDER_NAME}" \
       "${LIBFTDI_PATCH}"
 
-    # unset PKG_CONFIG_LIBDIR
-
     (
       mkdir -p "${BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
       cd "${BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
