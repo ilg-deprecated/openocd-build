@@ -4,20 +4,4 @@ These are small patches required to correct some problems identified in the offi
 
 * `libusb-win32-1.2.6.0-mingw-w64.patch` - makes `libusb-win32` build without the Microsoft DDK; it was copied from the [JTAG Tools](https://gitorious.org/jtag-tools/openocd-mingw-build-scripts) project, and repuires `-p1` when applying.
 
-# Memo
-
-To create a patch:
-
-```console
-$ cd top
-$ cp folder/file folder/file.patched
-$ vi folder/file.patched
-$ diff -u folder/file folder/file.patched >my.patch
-```
-
-To apply the patch:
-
-```console
-$ cd top
-$ patch -p0 <my.patch
-```
+For details on how to create the patches, see the helper [README](../scripts/helper/README.md).
