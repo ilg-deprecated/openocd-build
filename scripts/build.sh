@@ -60,7 +60,7 @@ host_common
 
 # -----------------------------------------------------------------------------
 
-if [ ! -z "${DO_BUILD_ANY}" ]
+if [ ! -z "${DO_BUILD_LINUX64}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_WIN32}" ]
 then
   host_prepare_docker
 fi
