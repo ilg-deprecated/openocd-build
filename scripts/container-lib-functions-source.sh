@@ -56,6 +56,7 @@ function do_libusb1()
           bash "${SOURCES_FOLDER_PATH}/${LIBUSB1_SRC_FOLDER_NAME}/configure" --help
 
           # --enable-shared required by libftdi.
+          # --enable-static required by libftdi. (odd...)
           bash ${DEBUG} "${SOURCES_FOLDER_PATH}/${LIBUSB1_SRC_FOLDER_NAME}/configure" \
             --prefix="${LIBS_INSTALL_FOLDER_PATH}" \
             \
@@ -94,6 +95,7 @@ function do_libusb1()
   fi
 }
 
+# Required by GNU/Linux and macOS.
 function do_libusb0()
 {
   # https://sourceforge.net/projects/libusb/files/libusb-compat-0.1/
@@ -142,8 +144,8 @@ function do_libusb0()
             --host=${HOST} \
             --target=${TARGET} \
             \
-            --disable-shared \
-            --enable-static 
+            --enable-shared \
+            --disable-static 
           
         ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libusb0-output.txt"
         cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-libusb0-log.txt"
@@ -172,6 +174,7 @@ function do_libusb0()
   fi
 }
 
+# Required by Windows.
 function do_libusb_w32()
 {
   # https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/
@@ -235,7 +238,9 @@ function do_libusb_w32()
           
       ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libusb-w32-output.txt"
 
+      # Manually install, could not find a make target.
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/bin"
+
       # Skipping it does not remove the reference from openocd, so for the
       # moment it is preserved.
       cp -v "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/libusb0.dll" \
@@ -294,7 +299,7 @@ function do_libftdi()
 
       export CFLAGS="${EXTRA_CFLAGS}"
       export CPPFLAGS="${EXTRA_CPPFLAGS}"
-      export LDFLAGS="${EXTRA_LDFLAGS_LIB}"
+      export LDFLAGS="${EXTRA_LDFLAGS}"
 
       (
         echo
@@ -303,7 +308,7 @@ function do_libftdi()
         if [ "${TARGET_PLATFORM}" == "win32" ]
         then
 
-          # Configure.
+          # Configure for Windows.
           cmake \
           -DPKG_CONFIG_EXECUTABLE="${PKG_CONFIG}" \
           -DCMAKE_TOOLCHAIN_FILE="${SOURCES_FOLDER_PATH}/${LIBFTDI_SRC_FOLDER_NAME}/cmake/Toolchain-${CROSS_COMPILE_PREFIX}.cmake" \
@@ -320,6 +325,7 @@ function do_libftdi()
 
         else
 
+          # Configure for GNU/Linux and macOS.
           cmake \
           -DPKG_CONFIG_EXECUTABLE="${PKG_CONFIG}" \
           -DCMAKE_INSTALL_PREFIX="${LIBS_INSTALL_FOLDER_PATH}" \
@@ -341,64 +347,6 @@ function do_libftdi()
         # Build.
         make ${JOBS}
         make install
-
-        echo
-        echo "Initial shared libraries..."
-        if [ "${TARGET_PLATFORM}" == "win32" ]
-        then
-          ls -lR "${LIBS_INSTALL_FOLDER_PATH}/bin"/*.dll
-        fi
-        ls -lR "${LIBS_INSTALL_FOLDER_PATH}"/lib*/
-
-        echo
-        echo "Removing shared libraries..."
-
-        # FTDI insists on building the shared libraries, but we do not 
-        # want them. Remove them.
-
-        rm -f "${LIBS_INSTALL_FOLDER_PATH}/bin/libftdi1-config"
-        rm -f "${LIBS_INSTALL_FOLDER_PATH}/bin/libusb-config"
-        rm -f "${LIBS_INSTALL_FOLDER_PATH}"/lib*/pkgconfig/libftdipp1.pc
-
-        if [ "${TARGET_PLATFORM}" == "win32" ]
-        then
-
-          # Remove DLLs to force static link for final executable.
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/bin"/libftdi*.dll*
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/bin"/libusb-1*.dll*
-
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libftdi*.dll*
-
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libusb*.dll*
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libusb*.la
-
-        elif [ "${TARGET_PLATFORM}" == "linux" ]
-        then
-
-          # Remove shared to force static link for final executable.
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}"/lib*/libftdi*.so*
-
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}"/lib*/libusb*.so*
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libusb*.la
-
-        elif [ "${TARGET_PLATFORM}" == "darwin" ]
-        then
-
-          # Remove dynamic to force static link for final executable.
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libftdi*.dylib
-
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libusb*.dylib
-          rm -f "${LIBS_INSTALL_FOLDER_PATH}/lib"/libusb*.la
-
-        fi
-
-        echo
-        echo "Final shared libraries..."
-        if [ "${TARGET_PLATFORM}" == "win32" ]
-        then
-          ls -lR "${LIBS_INSTALL_FOLDER_PATH}/bin"/*.dll
-        fi
-        ls -lR "${LIBS_INSTALL_FOLDER_PATH}"/lib*/
 
       ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libftdi-output.txt"
     )
@@ -464,8 +412,8 @@ function do_libiconv()
             --host=${HOST} \
             --target=${TARGET} \
             \
-            --disable-shared \
-            --enable-static \
+            --enable-shared \
+            --disable-static \
             --disable-nls
 
         ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libiconv-output.txt"
@@ -572,13 +520,8 @@ function do_hidapi()
         if [ "${TARGET_PLATFORM}" == "linux" ]
         then
           do_copy_libudev
-        fi
 
-        if [ "${TARGET_PLATFORM}" == "darwin" ]
-        then
-          # GCC fails to compile Darwin USB.h:
-          # error: too many #pragma options align=reset
-          export CC=gcc
+          export LIBS="-liconv"
         fi
 
         echo
@@ -589,14 +532,6 @@ function do_hidapi()
         export CFLAGS="${EXTRA_CFLAGS}"
         export CPPFLAGS="${EXTRA_CPPFLAGS}"
         export LDFLAGS="${EXTRA_LDFLAGS}"
-          
-        if [ "${TARGET_PLATFORM}" == "linux" ]
-        then
-          export LIBS="-liconv -lpthread -ludev"
-        elif [ "${TARGET_PLATFORM}" == "darwin" ]
-        then
-          export LIBS="-liconv"
-        fi
 
         (
           echo
@@ -611,8 +546,9 @@ function do_hidapi()
             --host=${HOST} \
             --target=${TARGET} \
             \
-            --disable-shared \
-            --enable-static 
+            --enable-shared \
+            --disable-static \
+            --disable-testgui
         
         ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-hidapi-output.txt"
         cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-hidapi-log.txt"
@@ -645,9 +581,10 @@ function do_hidapi()
 
 function do_copy_libudev()
 {
-  if [ "${TARGET_BITS}" == "64" ]
+  cp "/usr/include/libudev.h" "${LIBS_INSTALL_FOLDER_PATH}/include"
+
+  if [ "${TARGET_ARCH}" == "x64" ]
   then
-    cp "/usr/include/libudev.h" "${LIBS_INSTALL_FOLDER_PATH}/include"
     if [ -f "/usr/lib/x86_64-linux-gnu/libudev.so" ]
     then
       cp "/usr/lib/x86_64-linux-gnu/libudev.so" "${LIBS_INSTALL_FOLDER_PATH}/lib"
@@ -671,9 +608,8 @@ function do_copy_libudev()
       echo "No libudev.so; abort."
       exit 1
     fi
-  elif [ "${TARGET_BITS}" == "32" ] 
+  elif [ "${TARGET_ARCH}" == "x32" ] 
   then
-    cp "/usr/include/libudev.h" "${LIBS_INSTALL_FOLDER_PATH}/include"
     if [ -f "/usr/lib/i386-linux-gnu/libudev.so" ]
     then
       cp "/usr/lib/i386-linux-gnu/libudev.so" "${LIBS_INSTALL_FOLDER_PATH}/lib"

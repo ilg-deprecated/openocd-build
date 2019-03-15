@@ -57,7 +57,7 @@ function do_openocd()
         
         export CFLAGS="${EXTRA_CXXFLAGS} -Wno-pointer-to-int-cast" 
         export CXXFLAGS="${EXTRA_CXXFLAGS}" 
-        export LDFLAGS="${EXTRA_LDFLAGS} -static"
+        export LDFLAGS="${EXTRA_LDFLAGS_APP}"
 
         AMTJTAGACCEL="--enable-amtjtagaccel"
         # --enable-buspirate -> not supported on mingw
@@ -79,7 +79,7 @@ function do_openocd()
 
         export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
         export CXXFLAGS="${EXTRA_CXXFLAGS}"
-        export LDFLAGS="${EXTRA_LDFLAGS}" 
+        export LDFLAGS="${EXTRA_LDFLAGS_APP}" 
         export LIBS="-lpthread -lrt -ludev"
 
         AMTJTAGACCEL="--enable-amtjtagaccel"
@@ -100,8 +100,8 @@ function do_openocd()
 
         export CFLAGS="${EXTRA_CFLAGS}"
         export CXXFLAGS="${EXTRA_CXXFLAGS}"
-        export LDFLAGS="${EXTRA_LDFLAGS}"
-        export LIBS="-lobjc"
+        export LDFLAGS="${EXTRA_LDFLAGS_APP}"
+        # export LIBS="-lobjc"
 
         # --enable-amtjtagaccel -> 'sys/io.h' file not found
         AMTJTAGACCEL="--disable-amtjtagaccel"
@@ -207,24 +207,6 @@ function do_openocd()
           make install  
         fi
 
-if false
-then
-        if [ "${TARGET_PLATFORM}" == "linux" ]
-        then
-          patch_linux_elf_origin "${APP_PREFIX}/bin/openocd"
-
-          copy_linux_system_so libudev
-        elif [ "${TARGET_PLATFORM}" == "darwin" ]
-        then
-          change_dylib "libgcc_s.1.dylib" "${APP_PREFIX}/bin/openocd"
-        elif [ "${TARGET_PLATFORM}" == "win32" ]
-        then
-          # For unknown reasons, openocd still has a reference to libusb0.dll,
-          # although everything should have been compiled as static.
-          cp -v "${LIBS_INSTALL_FOLDER_PATH}/bin/libusb0.dll" \
-            "${APP_PREFIX}/bin"
-        fi
-fi
         if [ "${TARGET_PLATFORM}" == "linux" ]
         then
           echo
@@ -315,7 +297,7 @@ function run_openocd()
     else 
       (
         xbb_activate
-        
+
         local wine_path=$(which wine)
         if [ ! -z "${wine_path}" ]
         then
