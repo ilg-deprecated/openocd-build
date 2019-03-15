@@ -29,8 +29,8 @@ function do_libusb1()
       "${LIBUSB1_SRC_FOLDER_NAME}"
 
     (
-      mkdir -p "${BUILD_FOLDER_PATH}/${LIBUSB1_FOLDER_NAME}"
-      cd "${BUILD_FOLDER_PATH}/${LIBUSB1_FOLDER_NAME}"
+      mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB1_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB1_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -116,8 +116,8 @@ function do_libusb0()
       "${LIBUSB0_SRC_FOLDER_NAME}"
 
     (
-      mkdir -p "${BUILD_FOLDER_PATH}/${LIBUSB0_FOLDER_NAME}"
-      cd "${BUILD_FOLDER_PATH}/${LIBUSB0_FOLDER_NAME}"
+      mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB0_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB0_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -197,16 +197,16 @@ function do_libusb_w32()
       "${LIBUSB_W32_SRC_FOLDER_NAME}"
 
     # Mandatory build in the source folder, so make a local copy.
-    rm -rf "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
-    mkdir -p "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
+    rm -rf "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
+    mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
     cp -r "${SOURCES_FOLDER_PATH}/${LIBUSB_W32_SRC_FOLDER_NAME}"/* \
-      "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
+      "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
 
     (
       echo
       echo "Running libusb-win32 make..."
 
-      cd "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -238,11 +238,11 @@ function do_libusb_w32()
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/bin"
       # Skipping it does not remove the reference from openocd, so for the
       # moment it is preserved.
-      cp -v "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/libusb0.dll" \
+      cp -v "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/libusb0.dll" \
         "${LIBS_INSTALL_FOLDER_PATH}/bin"
 
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/lib"
-      cp -v "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/libusb.a" \
+      cp -v "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/libusb.a" \
         "${LIBS_INSTALL_FOLDER_PATH}/lib"
 
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/lib/pkgconfig"
@@ -251,7 +251,7 @@ function do_libusb_w32()
         > "${LIBS_INSTALL_FOLDER_PATH}/lib/pkgconfig/libusb.pc"
 
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/include/libusb"
-      cp -v "${BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/src/lusb0_usb.h" \
+      cp -v "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}/src/lusb0_usb.h" \
         "${LIBS_INSTALL_FOLDER_PATH}/include/libusb/usb.h"
     )
 
@@ -286,8 +286,8 @@ function do_libftdi()
       "${LIBFTDI_PATCH}"
 
     (
-      mkdir -p "${BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
-      cd "${BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
+      mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -436,8 +436,8 @@ function do_libiconv()
       "${LIBICONV_SRC_FOLDER_NAME}"
 
     (
-      mkdir -p "${BUILD_FOLDER_PATH}/${LIBICONV_FOLDER_NAME}"
-      cd "${BUILD_FOLDER_PATH}/${LIBICONV_FOLDER_NAME}"
+      mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${LIBICONV_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${LIBICONV_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -523,13 +523,13 @@ function do_hidapi()
       "${HIDAPI_SRC_FOLDER_NAME}"
 
     # Mandatory build in the source folder, so make a local copy.
-    rm -rf "${BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
-    mkdir -p "${BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
+    rm -rf "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
+    mkdir -p "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
     cp -r "${SOURCES_FOLDER_PATH}/${HIDAPI_SRC_FOLDER_NAME}"/* \
-      "${BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
+      "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
 
     (
-      cd "${BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
+      cd "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
 
       xbb_activate
       xbb_activate_this
@@ -540,7 +540,7 @@ function do_hidapi()
         HIDAPI_OBJECT="hid.o"
         HIDAPI_A="libhid.a"
 
-        cd "${BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}/windows"
+        cd "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}/windows"
 
         export CFLAGS="${EXTRA_CFLAGS}"
 
