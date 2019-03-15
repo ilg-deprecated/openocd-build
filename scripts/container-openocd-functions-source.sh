@@ -190,8 +190,8 @@ function do_openocd()
             --disable-zy1000-master \
             --disable-zy1000 \
 
-        ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/configure-openocd-output.txt"
-        cp "config.log" "${INSTALL_FOLDER_PATH}/config-openocd-log.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-openocd-output.txt"
+        cp "config.log" "${LOGS_FOLDER_PATH}/config-openocd-log.txt"
 
       fi
 
@@ -274,7 +274,7 @@ function do_openocd()
           make install-html
         fi
 
-      ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-openocd-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-openocd-output.txt"
     )
 }
 

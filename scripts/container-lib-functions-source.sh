@@ -67,8 +67,8 @@ function do_libusb1()
             --enable-shared \
             --enable-static
           
-        ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libusb1-output.txt"
-        cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-libusb1-log.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libusb1-output.txt"
+        cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb1-log.txt"
 
       fi
 
@@ -85,7 +85,7 @@ function do_libusb1()
         else
           make install
         fi
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libusb1-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libusb1-output.txt"
     )
 
     touch "${libusb1_stamp_file_path}"
@@ -147,8 +147,8 @@ function do_libusb0()
             --enable-shared \
             --disable-static 
           
-        ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libusb0-output.txt"
-        cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-libusb0-log.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libusb0-output.txt"
+        cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb0-log.txt"
 
       fi
 
@@ -164,7 +164,7 @@ function do_libusb0()
         else
           make install
         fi
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libusb0-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libusb0-output.txt"
     )
 
     touch "${libusb0_stamp_file_path}"
@@ -236,7 +236,7 @@ function do_libusb_w32()
             host_prefix_x86=i686-w64-mingw32 \
             dll
           
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libusb-w32-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libusb-w32-output.txt"
 
       # Manually install, could not find a make target.
       mkdir -p "${LIBS_INSTALL_FOLDER_PATH}/bin"
@@ -338,7 +338,7 @@ function do_libftdi()
           "${SOURCES_FOLDER_PATH}/${LIBFTDI_SRC_FOLDER_NAME}"
 
         fi
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libftdi-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libftdi-output.txt"
 
       (
         echo
@@ -348,7 +348,7 @@ function do_libftdi()
         make ${JOBS}
         make install
 
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libftdi-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libftdi-output.txt"
     )
 
     touch "${libftdi_stamp_file_path}"
@@ -416,8 +416,8 @@ function do_libiconv()
             --disable-static \
             --disable-nls
 
-        ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-libiconv-output.txt"
-        cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-libiconv-log.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libiconv-output.txt"
+        cp "config.log" "${LOGS_FOLDER_PATH}/config-libiconv-log.txt"
 
       fi
 
@@ -433,7 +433,7 @@ function do_libiconv()
         else
           make install
         fi
-      ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-libiconv-output.txt"
+      ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libiconv-output.txt"
     )
 
     touch "${libiconv_stamp_file_path}"
@@ -550,8 +550,8 @@ function do_hidapi()
             --disable-static \
             --disable-testgui
         
-        ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/configure-hidapi-output.txt"
-        cp "config.log" "${LIBS_INSTALL_FOLDER_PATH}/config-hidapi-log.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-hidapi-output.txt"
+        cp "config.log" "${LOGS_FOLDER_PATH}/config-hidapi-log.txt"
 
         (
           echo
@@ -565,7 +565,7 @@ function do_hidapi()
           else
             make install
           fi
-        ) 2>&1 | tee "${LIBS_INSTALL_FOLDER_PATH}/make-hidapi-output.txt"
+        ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-hidapi-output.txt"
 
       fi
 
