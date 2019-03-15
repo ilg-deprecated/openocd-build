@@ -66,6 +66,9 @@ host_options "    bash $0 [--win32] [--win64] [--linux32] [--linux64] [--osx] [-
 
 host_common
 
+docker_linux64_image="ilegeul/centos:6-xbb-v2"
+docker_linux32_image="ilegeul/centos32:6-xbb-v2"
+
 # -----------------------------------------------------------------------------
 
 if [ ! -z "${DO_BUILD_LINUX64}${DO_BUILD_WIN64}${DO_BUILD_LINUX32}${DO_BUILD_WIN32}" ]
