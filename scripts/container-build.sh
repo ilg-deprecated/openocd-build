@@ -331,11 +331,11 @@ echo
 # Build dependent libraries.
 
 do_libusb1
-if [ "${TARGET_PLATFORM}" != "win32" ]
+if [ "${TARGET_PLATFORM}" == "win32" ]
 then
-  do_libusb0
-else
   do_libusb_w32
+else
+  do_libusb0
 fi
 
 do_libftdi
