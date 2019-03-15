@@ -37,9 +37,9 @@ function do_libusb1()
 
       if [ "${TARGET_PLATFORM}" == "darwin" ]
       then
-        # GCC fails to compile Darwin USB.h:
+        # GCC-7 fails to compile Darwin USB.h:
         # error: too many #pragma options align=reset
-        export CC=gcc
+        export CC=clang
       fi
 
       export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-deprecated-declarations  -Wno-format"
