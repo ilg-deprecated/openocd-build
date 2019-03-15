@@ -319,6 +319,7 @@ fi
 OPENOCD_SRC_FOLDER_NAME=${OPENOCD_SRC_FOLDER_NAME:-"${OPENOCD_PROJECT_NAME}.git"}
 OPENOCD_GIT_URL=${OPENOCD_GIT_URL:-"https://github.com/gnu-mcu-eclipse/openocd.git"}
 
+# Used in the licenses folder.
 OPENOCD_FOLDER_NAME="openocd-${OPENOCD_VERSION}"
 
 # -----------------------------------------------------------------------------
