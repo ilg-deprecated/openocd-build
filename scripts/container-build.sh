@@ -150,41 +150,7 @@ start_timer
 
 detect_container
 
-# Fix the texinfo path in XBB v1.
-if [ -f "/.dockerenv" -a -f "/opt/xbb/xbb.sh" ]
-then
-  if [ "${TARGET_BITS}" == "64" ]
-  then
-    sed -e "s|texlive/bin/\$\(uname -p\)-linux|texlive/bin/x86_64-linux|" /opt/xbb/xbb.sh > /opt/xbb/xbb-source.sh
-  elif [ "${TARGET_BITS}" == "32" ]
-  then
-    sed -e "s|texlive/bin/[$][(]uname -p[)]-linux|texlive/bin/i386-linux|" /opt/xbb/xbb.sh > /opt/xbb/xbb-source.sh
-  fi
-
-  echo 'cat /opt/xbb/xbb-source.sh'
-  cat /opt/xbb/xbb-source.sh
-  echo '--------------------------'
-fi
-
 prepare_xbb_env
-
-# -----------------------------------------------------------------------------
-
-if [ -f "/.dockerenv" ]
-then
-  ( 
-    xbb_activate
-
-    # Remove references to libfl.so, to force a static link and
-    # avoid references to unwanted shared libraries in binutils.
-    sed -i -e "s/dlname=.*/dlname=''/" -e "s/library_names=.*/library_names=''/" "${XBB_FOLDER}"/lib/libfl.la
-
-    echo "${XBB_FOLDER}"/lib/libfl.la
-    cat "${XBB_FOLDER}"/lib/libfl.la
-  )
-fi
-
-# -----------------------------------------------------------------------------
 
 prepare_extras
 
