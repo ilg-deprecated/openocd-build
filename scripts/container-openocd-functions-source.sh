@@ -6,12 +6,26 @@
 
 # -----------------------------------------------------------------------------
 
+function download_openocd() 
+{
+  if [ ! -d "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}" ]
+  then
+    (
+      xbb_activate
+
+      cd "${WORK_FOLDER_PATH}"
+      git_clone "${OPENOCD_GIT_URL}" "${OPENOCD_GIT_BRANCH}" \
+          "${OPENOCD_GIT_COMMIT}" "${OPENOCD_SRC_FOLDER_NAME}"
+      cd "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}"
+      git submodule update --init --recursive --remote
+    )
+  fi
+}
+
+# -----------------------------------------------------------------------------
+
 function do_openocd()
 {
-
-  if true
-  then
-
     download_openocd
 
     (
@@ -113,10 +127,10 @@ function do_openocd()
         # in place and using one for a different architecture may not be a good idea.
         rm -rfv "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}/jimtcl/autosetup/jimsh0"
 
-        echo
-        echo "Running openocd configure..."
-      
         (
+          echo
+          echo "Running openocd configure..."
+      
           bash "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}/configure" --help
 
           bash ${DEBUG} "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}/configure" \
@@ -181,16 +195,89 @@ function do_openocd()
 
       fi
 
-      echo
-      echo "Running openocd make..."
-      
       (
+        echo
+        echo "Running openocd make..."
+      
         make ${JOBS} bindir="bin" pkgdatadir=""
         if [ "${WITH_STRIP}" == "y" ]
         then
           make install-strip
         else
           make install  
+        fi
+
+if false
+then
+        if [ "${TARGET_PLATFORM}" == "linux" ]
+        then
+          patch_linux_elf_origin "${APP_PREFIX}/bin/openocd"
+
+          copy_linux_system_so libudev
+        elif [ "${TARGET_PLATFORM}" == "darwin" ]
+        then
+          change_dylib "libgcc_s.1.dylib" "${APP_PREFIX}/bin/openocd"
+        elif [ "${TARGET_PLATFORM}" == "win32" ]
+        then
+          # For unknown reasons, openocd still has a reference to libusb0.dll,
+          # although everything should have been compiled as static.
+          cp -v "${LIBS_INSTALL_FOLDER_PATH}/bin/libusb0.dll" \
+            "${APP_PREFIX}/bin"
+        fi
+fi
+        if [ "${TARGET_PLATFORM}" == "linux" ]
+        then
+          echo
+          echo "Shared libraries:"
+          echo "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+          readelf -d "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" | grep 'Shared library:'
+
+          # For just in case, normally must be done by the make file.
+          strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"  || true
+
+          echo
+          echo "Preparing libraries..."
+          patch_linux_elf_origin "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+
+          echo
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+        elif [ "${TARGET_PLATFORM}" == "darwin" ]
+        then
+          echo
+          echo "Initial dynamic libraries:"
+          otool -L "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+
+          # For just in case, normally must be done by the make file.
+          strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" || true
+
+          echo
+          echo "Preparing libraries..."
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+
+          echo
+          echo "Updated dynamic libraries:"
+          otool -L "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+        elif [ "${TARGET_PLATFORM}" == "win32" ]
+        then
+          echo
+          echo "Dynamic libraries:"
+          echo "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe"
+          ${CROSS_COMPILE_PREFIX}-objdump -x "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" | grep -i 'DLL Name'
+
+          # For just in case, normally must be done by the make file.
+          ${CROSS_COMPILE_PREFIX}-strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" || true
+
+          rm -f "${APP_PREFIX}/bin/openocdw.exe"
+
+          echo
+          echo "Preparing libraries..."
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe"
+        fi
+
+        if [ "${IS_DEVELOP}" != "y" ]
+        then
+          strip_binaries
+          check_application "${APP_EXECUTABLE_NAME}"
         fi
 
         if [ "${WITH_PDF}" == "y" ]
@@ -205,53 +292,64 @@ function do_openocd()
           make install-html
         fi
 
-        if [ "${TARGET_PLATFORM}" == "linux" ]
-        then
-          # Workaround to Docker error on 32-bit image:
-          # stat: Value too large for defined data type
-          rm -rf /tmp/openocd
-          cp "${APP_PREFIX}/bin/openocd" /tmp/openocd
-          patchelf --set-rpath '$ORIGIN' /tmp/openocd
-          cp /tmp/openocd "${APP_PREFIX}/bin/openocd"
-
-          copy_linux_system_so libudev
-        elif [ "${TARGET_PLATFORM}" == "darwin" ]
-        then
-          change_dylib "libgcc_s.1.dylib" "${APP_PREFIX}/bin/openocd"
-        elif [ "${TARGET_PLATFORM}" == "win32" ]
-        then
-          # For unknown reasons, openocd still has a reference to libusb0.dll,
-          # although everything should have been compiled as static.
-          cp -v "${LIBS_INSTALL_FOLDER_PATH}/bin/libusb0.dll" \
-            "${APP_PREFIX}/bin"
-        fi
-
       ) 2>&1 | tee "${INSTALL_FOLDER_PATH}/make-openocd-output.txt"
     )
+}
 
-    if [ "${TARGET_PLATFORM}" == "win32" ]
+function run_openocd()
+{
+  echo
+
+  if [ "${TARGET_PLATFORM}" == "linux" ]
+  then
+    "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" --version
+  elif [ "${TARGET_PLATFORM}" == "darwin" ]
+  then
+    "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" --version
+  elif [ "${TARGET_PLATFORM}" == "win32" ]
+  then
+    local wsl_path=$(which wsl.exe)
+    if [ ! -z "${wsl_path}" ]
     then
-      local wsl_path=$(which wsl.exe)
-      if [ ! -z "${wsl_path}" ]
-      then
-        echo
-        "${APP_PREFIX}/bin/openocd.exe" --version
-      else 
+      "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" --version
+    else 
+      (
+        xbb_activate
+        
         local wine_path=$(which wine)
         if [ ! -z "${wine_path}" ]
         then
-          echo
-          wine "${APP_PREFIX}/bin/openocd.exe" --version
+          wine "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" --version
         else
-          echo
           echo "Install wine if you want to run the .exe binaries on Linux."
         fi
-      fi
-    else
-      echo
-      "${APP_PREFIX}/bin/openocd" --version
+      )
     fi
+  fi
+}
 
+function strip_binaries()
+{
+  if [ "${WITH_STRIP}" == "y" ]
+  then
+    (
+      xbb_activate
+
+      echo
+      echo "Striping binaries..."
+
+      if [ "${TARGET_PLATFORM}" == "win32" ]
+      then
+        ${CROSS_COMPILE_PREFIX}-strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" || true
+        ${CROSS_COMPILE_PREFIX}-strip "${APP_PREFIX}/bin/"*.dll || true
+      else
+        strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" || true
+        if [ "${TARGET_PLATFORM}" == "linux" ]
+        then
+          : # strip "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" || true
+        fi
+      fi
+    )
   fi
 }
 
