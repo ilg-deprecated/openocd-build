@@ -38,8 +38,8 @@ function do_openocd()
         ./bootstrap
       fi
 
-      mkdir -p "${BUILD_FOLDER_PATH}/${OPENOCD_FOLDER_NAME}"
-      cd "${BUILD_FOLDER_PATH}/${OPENOCD_FOLDER_NAME}"
+      mkdir -p "${APP_BUILD_FOLDER_PATH}"
+      cd "${APP_BUILD_FOLDER_PATH}"
 
       export JAYLINK_CFLAGS='${EXTRA_CFLAGS} -fvisibility=hidden'
 
