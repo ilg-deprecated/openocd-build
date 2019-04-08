@@ -50,12 +50,8 @@ script_folder_name="$(basename "${script_folder_path}")"
 echo
 echo "GNU MCU Eclipse OpenOCD distribution build script."
 
-echo
 host_functions_script_path="${script_folder_path}/helper/host-functions-source.sh"
-echo "Host helper functions source script: \"${host_functions_script_path}\"."
 source "${host_functions_script_path}"
-
-host_detect
 
 # -----------------------------------------------------------------------------
 
@@ -64,10 +60,17 @@ declare -a rest
 
 host_options "    bash $0 [--win32] [--win64] [--linux32] [--linux64] [--osx] [--all] [clean|cleanlibs|cleanall|preload-images] [--env-file file] [--date YYYYmmdd-HHMM] [--disable-strip] [--without-pdf] [--with-html] [--develop] [--debug] [--jobs N] [--help]" $@
 
+echo
+echo "Host helper functions source script: \"${host_functions_script_path}\"."
+
+host_detect
+
+# docker_linux64_image="ilegeul/centos:6-xbb-v2.1"
+# docker_linux32_image="ilegeul/centos32:6-xbb-v2.1"
+
 host_common
 
-docker_linux64_image="ilegeul/centos:6-xbb-v2"
-docker_linux32_image="ilegeul/centos32:6-xbb-v2"
+CONTAINER_RUN_AS_ROOT="y"
 
 # -----------------------------------------------------------------------------
 
@@ -76,10 +79,10 @@ then
   host_prepare_docker
 fi
 
-# ----- Build the native distribution. ----------------------------------------
-
 if [ -z "${DO_BUILD_ANY}" ]
 then
+
+  # ----- Build the native distribution. --------------------------------------
 
   host_build_target "Creating the native distribution..." \
     --script "${HOST_WORK_FOLDER_PATH}/${CONTAINER_BUILD_SCRIPT_REL_PATH}" \
@@ -107,7 +110,7 @@ else
     fi
   fi
 
-  # ----- Build the GNU/Linux 64-bit distribution. ---------------------------
+  # ----- Build the GNU/Linux 64-bit distribution. ----------------------------
 
   linux_distribution="centos"
   
@@ -124,7 +127,7 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the Windows 64-bit distribution. -----------------------------
+  # ----- Build the Windows 64-bit distribution. ------------------------------
 
   if [ "${DO_BUILD_WIN64}" == "y" ]
   then
@@ -139,7 +142,7 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the GNU/Linux 32-bit distribution. ---------------------------
+  # ----- Build the GNU/Linux 32-bit distribution. ----------------------------
 
   if [ "${DO_BUILD_LINUX32}" == "y" ]
   then
@@ -154,7 +157,7 @@ else
       ${rest[@]-}
   fi
 
-  # ----- Build the Windows 32-bit distribution. -----------------------------
+  # ----- Build the Windows 32-bit distribution. ------------------------------
 
   # Since the actual container is a 32-bit, use the debian32 binaries.
   if [ "${DO_BUILD_WIN32}" == "y" ]

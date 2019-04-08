@@ -37,7 +37,7 @@ function do_openocd()
 
     (
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
       cd "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}"
       if [ ! -d "autom4te.cache" ]
@@ -48,7 +48,7 @@ function do_openocd()
       mkdir -p "${APP_BUILD_FOLDER_PATH}"
       cd "${APP_BUILD_FOLDER_PATH}"
 
-      export JAYLINK_CFLAGS='${EXTRA_CFLAGS} -fvisibility=hidden'
+      export JAYLINK_CFLAGS='${XBB_CFLAGS} -fvisibility=hidden'
 
       if [ "${TARGET_PLATFORM}" == "win32" ]
       then
@@ -62,9 +62,9 @@ function do_openocd()
 
         export OUTPUT_DIR="${BUILD_FOLDER_PATH}"
         
-        export CFLAGS="${EXTRA_CXXFLAGS} -Wno-pointer-to-int-cast" 
-        export CXXFLAGS="${EXTRA_CXXFLAGS}" 
-        export LDFLAGS="${EXTRA_LDFLAGS_APP}"
+        export CFLAGS="${XBB_CXXFLAGS} -Wno-pointer-to-int-cast" 
+        export CXXFLAGS="${XBB_CXXFLAGS}" 
+        export LDFLAGS="${XBB_LDFLAGS_APP}"
 
         AMTJTAGACCEL="--enable-amtjtagaccel"
         # --enable-buspirate -> not supported on mingw
@@ -84,9 +84,9 @@ function do_openocd()
         # --enable-presto_libftdi -> --enable-presto
         # --enable-usb_blaster_libftdi -> --enable-usb_blaster
 
-        export CFLAGS="${EXTRA_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
-        export CXXFLAGS="${EXTRA_CXXFLAGS}"
-        export LDFLAGS="${EXTRA_LDFLAGS_APP}" 
+        export CFLAGS="${XBB_CFLAGS} -Wno-format-truncation -Wno-format-overflow"
+        export CXXFLAGS="${XBB_CXXFLAGS}"
+        export LDFLAGS="${XBB_LDFLAGS_APP}" 
         export LIBS="-lpthread -lrt -ludev"
 
         AMTJTAGACCEL="--enable-amtjtagaccel"
@@ -105,9 +105,9 @@ function do_openocd()
         # --enable-presto_libftdi -> --enable-presto
         # --enable-usb_blaster_libftdi -> --enable-usb_blaster
 
-        export CFLAGS="${EXTRA_CFLAGS}"
-        export CXXFLAGS="${EXTRA_CXXFLAGS}"
-        export LDFLAGS="${EXTRA_LDFLAGS_APP}"
+        export CFLAGS="${XBB_CFLAGS}"
+        export CXXFLAGS="${XBB_CXXFLAGS}"
+        export LDFLAGS="${XBB_LDFLAGS_APP}"
         # export LIBS="-lobjc"
 
         # --enable-amtjtagaccel -> 'sys/io.h' file not found
@@ -197,8 +197,8 @@ function do_openocd()
             --disable-zy1000-master \
             --disable-zy1000 \
 
+          cp "config.log" "${LOGS_FOLDER_PATH}/config-openocd-log.txt"
         ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-openocd-output.txt"
-        cp "config.log" "${LOGS_FOLDER_PATH}/config-openocd-log.txt"
 
       fi
 
@@ -206,7 +206,8 @@ function do_openocd()
         echo
         echo "Running openocd make..."
       
-        make ${JOBS} bindir="bin" pkgdatadir=""
+        # Parallel builds fail.
+        make bindir="bin" pkgdatadir=""
         if [ "${WITH_STRIP}" == "y" ]
         then
           make install-strip
@@ -229,7 +230,7 @@ function do_openocd()
           patch_linux_elf_origin "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
 
           echo
-          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" "${APP_PREFIX}/bin"
         elif [ "${TARGET_PLATFORM}" == "darwin" ]
         then
           echo
@@ -241,7 +242,7 @@ function do_openocd()
 
           echo
           echo "Preparing libraries..."
-          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}"
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}" "${APP_PREFIX}/bin"
 
           echo
           echo "Updated dynamic libraries:"
@@ -260,7 +261,7 @@ function do_openocd()
 
           echo
           echo "Preparing libraries..."
-          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe"
+          copy_dependencies_recursive "${APP_PREFIX}/bin/${APP_EXECUTABLE_NAME}.exe" "${APP_PREFIX}/bin"
         fi
 
         if [ "${IS_DEVELOP}" != "y" ]
@@ -269,17 +270,21 @@ function do_openocd()
           check_application "${APP_EXECUTABLE_NAME}"
         fi
 
-        if [ "${WITH_PDF}" == "y" ]
-        then
-          make ${JOBS} bindir="bin" pkgdatadir="" pdf 
-          make install-pdf
-        fi
+        (
+          xbb_activate_tex
 
-        if [ "${WITH_HTML}" == "y" ]
-        then
-          make ${JOBS} bindir="bin" pkgdatadir="" html
-          make install-html
-        fi
+          if [ "${WITH_PDF}" == "y" ]
+          then
+            make bindir="bin" pkgdatadir="" pdf 
+            make install-pdf
+          fi
+
+          if [ "${WITH_HTML}" == "y" ]
+          then
+            make bindir="bin" pkgdatadir="" html
+            make install-html
+          fi
+        )
 
       ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-openocd-output.txt"
     )
@@ -304,6 +309,7 @@ function run_openocd()
     else 
       (
         xbb_activate
+        xbb_activate_installed_bin
 
         local wine_path=$(which wine)
         if [ ! -z "${wine_path}" ]
@@ -346,44 +352,48 @@ function strip_binaries()
 
 function copy_gme_files()
 {
-  rm -rf "${APP_PREFIX}/${DISTRO_LC_NAME}"
-  mkdir -p "${APP_PREFIX}/${DISTRO_LC_NAME}"
+  (
+    xbb_activate
 
-  echo
-  echo "Copying license files..."
+    rm -rf "${APP_PREFIX}/${DISTRO_LC_NAME}"
+    mkdir -p "${APP_PREFIX}/${DISTRO_LC_NAME}"
 
-  copy_license \
-    "${SOURCES_FOLDER_PATH}/${LIBUSB1_SRC_FOLDER_NAME}" \
-    "${LIBUSB1_FOLDER_NAME}"
+    echo
+    echo "Copying license files..."
 
-  if [ "${TARGET_PLATFORM}" != "win32" ]
-  then
     copy_license \
-      "${SOURCES_FOLDER_PATH}/${LIBUSB0_SRC_FOLDER_NAME}" \
-      "${LIBUSB0_FOLDER_NAME}"
-  else
+      "${SOURCES_FOLDER_PATH}/${LIBUSB1_SRC_FOLDER_NAME}" \
+      "${LIBUSB1_FOLDER_NAME}"
+
+    if [ "${TARGET_PLATFORM}" != "win32" ]
+    then
+      copy_license \
+        "${SOURCES_FOLDER_PATH}/${LIBUSB0_SRC_FOLDER_NAME}" \
+        "${LIBUSB0_FOLDER_NAME}"
+    else
+      copy_license \
+        "${SOURCES_FOLDER_PATH}/${LIBUSB_W32_SRC_FOLDER_NAME}" \
+        "${LIBUSB_W32_FOLDER_NAME}"
+    fi
+
     copy_license \
-      "${SOURCES_FOLDER_PATH}/${LIBUSB_W32_SRC_FOLDER_NAME}" \
-      "${LIBUSB_W32_FOLDER_NAME}"
-  fi
+      "${SOURCES_FOLDER_PATH}/${LIBFTDI_SRC_FOLDER_NAME}" \
+      "${LIBFTDI_FOLDER_NAME}"
+    copy_license \
+      "${SOURCES_FOLDER_PATH}/${LIBICONV_SRC_FOLDER_NAME}" \
+      "${LIBICONV_FOLDER_NAME}"
 
-  copy_license \
-    "${SOURCES_FOLDER_PATH}/${LIBFTDI_SRC_FOLDER_NAME}" \
-    "${LIBFTDI_FOLDER_NAME}"
-  copy_license \
-    "${SOURCES_FOLDER_PATH}/${LIBICONV_SRC_FOLDER_NAME}" \
-    "${LIBICONV_FOLDER_NAME}"
+    copy_license \
+      "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}" \
+      "${OPENOCD_FOLDER_NAME}"
 
-  copy_license \
-    "${WORK_FOLDER_PATH}/${OPENOCD_SRC_FOLDER_NAME}" \
-    "${OPENOCD_FOLDER_NAME}"
+    copy_build_files
 
-  copy_build_files
+    echo
+    echo "Copying GME files..."
 
-  echo
-  echo "Copying GME files..."
-
-  cd "${WORK_FOLDER_PATH}/build.git"
-  /usr/bin/install -v -c -m 644 "${README_OUT_FILE_NAME}" \
-    "${APP_PREFIX}/README.md"
+    cd "${WORK_FOLDER_PATH}/build.git"
+    install -v -c -m 644 "${README_OUT_FILE_NAME}" \
+      "${APP_PREFIX}/README.md"
+  )
 }

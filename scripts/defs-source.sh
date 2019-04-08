@@ -30,7 +30,7 @@ DISTRO_LC_NAME=${DISTRO_LC_NAME:-"gnu-mcu-eclipse"}
 BRANDING=${BRANDING:-"${DISTRO_UC_NAME} OpenOCD"}
 
 CONTAINER_SCRIPT_NAME=${CONTAINER_SCRIPT_NAME:-"container-build.sh"}
-CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME=${CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME:-"container-lib-functions-source.sh"}
-CONTAINER_APP_FUNCTIONS_SCRIPT_NAME=${CONTAINER_APP_FUNCTIONS_SCRIPT_NAME:-"container-openocd-functions-source.sh"}
+CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME=${CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME:-"container-libs-functions-source.sh"}
+CONTAINER_APP_FUNCTIONS_SCRIPT_NAME=${CONTAINER_APP_FUNCTIONS_SCRIPT_NAME:-"container-app-functions-source.sh"}
 
 # -----------------------------------------------------------------------------

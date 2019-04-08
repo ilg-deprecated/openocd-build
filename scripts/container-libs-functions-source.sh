@@ -40,7 +40,7 @@ function do_libusb1()
       cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB1_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
       if [ "${TARGET_PLATFORM}" == "darwin" ]
       then
@@ -49,9 +49,9 @@ function do_libusb1()
         export CC=clang
       fi
 
-      export CFLAGS="${EXTRA_CFLAGS} -Wno-non-literal-null-conversion -Wno-deprecated-declarations  -Wno-format"
-      export CPPFLAGS="${EXTRA_CPPFLAGS}"
-      export LDFLAGS="${EXTRA_LDFLAGS}"
+      export CFLAGS="${XBB_CFLAGS} -Wno-non-literal-null-conversion -Wno-deprecated-declarations  -Wno-format"
+      export CPPFLAGS="${XBB_CPPFLAGS}"
+      export LDFLAGS="${XBB_LDFLAGS_LIB}"
 
       if [ ! -f "config.status" ]
       then 
@@ -74,8 +74,8 @@ function do_libusb1()
             --enable-shared \
             --enable-static
           
+          cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb1-log.txt"
         ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libusb1-output.txt"
-        cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb1-log.txt"
 
       fi
 
@@ -129,11 +129,11 @@ function do_libusb0()
       cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB0_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
-      export CFLAGS="${EXTRA_CFLAGS}"
-      export CPPFLAGS="${EXTRA_CPPFLAGS}"
-      export LDFLAGS="${EXTRA_LDFLAGS}"
+      export CFLAGS="${XBB_CFLAGS}"
+      export CPPFLAGS="${XBB_CPPFLAGS}"
+      export LDFLAGS="${XBB_LDFLAGS_LIB}"
 
       if [ ! -f "config.status" ]
       then 
@@ -154,8 +154,8 @@ function do_libusb0()
             --enable-shared \
             --disable-static 
           
+          cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb0-log.txt"
         ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libusb0-output.txt"
-        cp "config.log" "${LOGS_FOLDER_PATH}/config-libusb0-log.txt"
 
       fi
 
@@ -164,7 +164,7 @@ function do_libusb0()
         echo "Running libusb0 make..."
 
         # Build.
-        make ${JOBS}
+        make -j ${JOBS}
         if [ "${WITH_STRIP}" == "y" ]
         then
           make install-strip
@@ -219,7 +219,7 @@ function do_libusb_w32()
       cd "${LIBS_BUILD_FOLDER_PATH}/${LIBUSB_W32_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
       # Patch from:
       # https://gitorious.org/jtag-tools/openocd-mingw-build-scripts
@@ -237,7 +237,7 @@ function do_libusb_w32()
 
       # Build.
       (
-          export CFLAGS="${EXTRA_CFLAGS} -Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable"
+          export CFLAGS="${XBB_CFLAGS} -Wno-unknown-pragmas -Wno-unused-variable -Wno-pointer-sign -Wno-unused-but-set-variable"
           make \
             host_prefix=${CROSS_COMPILE_PREFIX} \
             host_prefix_x86=i686-w64-mingw32 \
@@ -302,11 +302,11 @@ function do_libftdi()
       cd "${LIBS_BUILD_FOLDER_PATH}/${LIBFTDI_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
-      export CFLAGS="${EXTRA_CFLAGS}"
-      export CPPFLAGS="${EXTRA_CPPFLAGS}"
-      export LDFLAGS="${EXTRA_LDFLAGS}"
+      export CFLAGS="${XBB_CFLAGS}"
+      export CPPFLAGS="${XBB_CPPFLAGS}"
+      export LDFLAGS="${XBB_LDFLAGS_LIB}"
 
       (
         echo
@@ -352,7 +352,7 @@ function do_libftdi()
         echo "Running libftdi make..."
 
         # Build.
-        make ${JOBS}
+        make -j ${JOBS}
         make install
 
       ) 2>&1 | tee "${LOGS_FOLDER_PATH}/make-libftdi-output.txt"
@@ -395,13 +395,13 @@ function do_libiconv()
       cd "${LIBS_BUILD_FOLDER_PATH}/${LIBICONV_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
       # -fgnu89-inline fixes "undefined reference to `aliases2_lookup'"
       #  https://savannah.gnu.org/bugs/?47953
-      export CFLAGS="${EXTRA_CFLAGS} -fgnu89-inline -Wno-tautological-compare -Wno-parentheses-equality -Wno-static-in-inline -Wno-pointer-to-int-cast"
-      export CPPFLAGS="${EXTRA_CPPFLAGS}"
-      export LDFLAGS="${EXTRA_LDFLAGS}"
+      export CFLAGS="${XBB_CFLAGS} -fgnu89-inline -Wno-tautological-compare -Wno-parentheses-equality -Wno-static-in-inline -Wno-pointer-to-int-cast"
+      export CPPFLAGS="${XBB_CPPFLAGS}"
+      export LDFLAGS="${XBB_LDFLAGS_LIB}"
 
       if [ ! -f "config.status" ]
       then 
@@ -423,8 +423,8 @@ function do_libiconv()
             --disable-static \
             --disable-nls
 
+          cp "config.log" "${LOGS_FOLDER_PATH}/config-libiconv-log.txt"
         ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-libiconv-output.txt"
-        cp "config.log" "${LOGS_FOLDER_PATH}/config-libiconv-log.txt"
 
       fi
 
@@ -433,7 +433,7 @@ function do_libiconv()
         echo "Running libiconv make..."
 
         # Build.
-        make ${JOBS}
+        make -j ${JOBS}
         if [ "${WITH_STRIP}" == "y" ]
         then
           make install-strip
@@ -487,7 +487,7 @@ function do_hidapi()
       cd "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}"
 
       xbb_activate
-      xbb_activate_this
+      xbb_activate_installed_dev
 
       if [ "${TARGET_PLATFORM}" == "win32" ]
       then
@@ -497,7 +497,7 @@ function do_hidapi()
 
         cd "${LIBS_BUILD_FOLDER_PATH}/${HIDAPI_FOLDER_NAME}/windows"
 
-        export CFLAGS="${EXTRA_CFLAGS}"
+        export CFLAGS="${XBB_CFLAGS}"
 
         make -f Makefile.mingw \
           CC=${CROSS_COMPILE_PREFIX}-gcc \
@@ -536,9 +536,9 @@ function do_hidapi()
 
         bash ./bootstrap
 
-        export CFLAGS="${EXTRA_CFLAGS}"
-        export CPPFLAGS="${EXTRA_CPPFLAGS}"
-        export LDFLAGS="${EXTRA_LDFLAGS}"
+        export CFLAGS="${XBB_CFLAGS}"
+        export CPPFLAGS="${XBB_CPPFLAGS}"
+        export LDFLAGS="${XBB_LDFLAGS_LIB}"
 
         (
           echo
@@ -557,15 +557,15 @@ function do_hidapi()
             --disable-static \
             --disable-testgui
         
+          cp "config.log" "${LOGS_FOLDER_PATH}/config-hidapi-log.txt"
         ) 2>&1 | tee "${LOGS_FOLDER_PATH}/configure-hidapi-output.txt"
-        cp "config.log" "${LOGS_FOLDER_PATH}/config-hidapi-log.txt"
 
         (
           echo
           echo "Running hidapi make..."
 
           # Build.
-          make ${JOBS}
+          make -j ${JOBS}
           if [ "${WITH_STRIP}" == "y" ]
           then
             make install-strip

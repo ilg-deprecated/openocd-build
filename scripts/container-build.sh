@@ -69,9 +69,9 @@ container_functions_script_path="${script_folder_path}/helper/container-function
 echo "Container helper functions source script: \"${container_functions_script_path}\"."
 source "${container_functions_script_path}"
 
-container_lib_functions_script_path="${script_folder_path}/${CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME}"
-echo "Container lib functions source script: \"${container_lib_functions_script_path}\"."
-source "${container_lib_functions_script_path}"
+container_libs_functions_script_path="${script_folder_path}/${CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME}"
+echo "Container libs functions source script: \"${container_libs_functions_script_path}\"."
+source "${container_libs_functions_script_path}"
 
 container_app_functions_script_path="${script_folder_path}/${CONTAINER_APP_FUNCTIONS_SCRIPT_NAME}"
 echo "Container app functions source script: \"${container_app_functions_script_path}\"."
@@ -79,19 +79,18 @@ source "${container_app_functions_script_path}"
 
 # -----------------------------------------------------------------------------
 
+if [ ! -z "#{DEBUG}" ]
+then
+  echo $@
+fi
+
 WITH_STRIP="y"
 WITH_PDF="y"
 WITH_HTML="n"
 IS_DEVELOP=""
 IS_DEBUG=""
 
-# Attempts to use 8 occasionally failed, reduce if necessary.
-if [ "$(uname)" == "Darwin" ]
-then
-  JOBS="--jobs=$(sysctl -n hw.ncpu)"
-else
-  JOBS="--jobs=$(grep ^processor /proc/cpuinfo|wc -l)"
-fi
+JOBS=""
 
 while [ $# -gt 0 ]
 do
@@ -160,7 +159,7 @@ detect_container
 
 prepare_xbb_env
 
-prepare_extras
+prepare_xbb_extras
 
 # -----------------------------------------------------------------------------
 
