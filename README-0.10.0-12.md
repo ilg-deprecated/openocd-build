@@ -10,8 +10,8 @@ GNU MCU Eclipse OpenOCD generally follows the official
 The current version is based on 
 
 - OpenOCD version 0.10.0-development, commit 
-[d140fb27c](https://github.com/gnu-mcu-eclipse/openocd/commit/d140fb27c6afbfa1fe609b5f0db274d4a5273483) 
-from Jan 16th, 2019
+[c19de41a0](https://github.com/gnu-mcu-eclipse/openocd/commit/c19de41a0f49ee11eb474c51dc243383047bd663) 
+from Apr 7th, 2019
 
 ### RISC-V support
 
