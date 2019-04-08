@@ -301,18 +301,18 @@ then
   OPENOCD_VERSION="0.10.0-12"
 
   OPENOCD_GIT_BRANCH=${OPENOCD_GIT_BRANCH:-"gnu-mcu-eclipse-dev"}
-  OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"4a6f93c96146f3c06e61d89377d76e84915af202"}
+  OPENOCD_GIT_COMMIT=${OPENOCD_GIT_COMMIT:-"23ad80df43ac31ce147359f18f2ef9e0e62df794"}
   
   # ---------------------------------------------------------------------------
 
-  LIBUSB1_VERSION="1.0.20"
+  LIBUSB1_VERSION="1.0.22"
   LIBUSB0_VERSION="0.1.5"
   LIBUSB_W32_VERSION="1.2.6.0"
-  LIBFTDI_VERSION="1.2"
+  LIBFTDI_VERSION="1.4"
   LIBICONV_VERSION="1.15"
   HIDAPI_VERSION="0.8.0-rc1"
 
-  LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
+  # LIBFTDI_PATCH="libftdi1-${LIBFTDI_VERSION}-cmake-FindUSB1.patch"
   LIBUSB_W32_PATCH="libusb-win32-${LIBUSB_W32_VERSION}-mingw-w64.patch"
 
   # ---------------------------------------------------------------------------
