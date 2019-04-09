@@ -123,7 +123,7 @@ do
       ;;
 
     --jobs)
-      JOBS="--jobs=$2"
+      JOBS=$2
       shift 2
       ;;
 
