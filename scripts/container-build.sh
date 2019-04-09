@@ -69,7 +69,7 @@ container_functions_script_path="${script_folder_path}/helper/container-function
 echo "Container helper functions source script: \"${container_functions_script_path}\"."
 source "${container_functions_script_path}"
 
-container_libs_functions_script_path="${script_folder_path}/${CONTAINER_LIB_FUNCTIONS_SCRIPT_NAME}"
+container_libs_functions_script_path="${script_folder_path}/${CONTAINER_LIBS_FUNCTIONS_SCRIPT_NAME}"
 echo "Container libs functions source script: \"${container_libs_functions_script_path}\"."
 source "${container_libs_functions_script_path}"
 
