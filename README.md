@@ -175,7 +175,7 @@ To copy the files from the build machine to the current development
 machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
-$ cd ${HOME}/Work/openocd-0.10.0-8/deploy
+$ cd ${HOME}/Work/openocd-*/deploy
 $ scp * ilg@ilg-mbp.local:Downloads/gme-binaries/oocd
 ```
 
@@ -216,7 +216,7 @@ To copy the files from the build machine to the current development
 machine, open the `deploy` folder in a terminal and use `scp`:
 
 ```console
-$ cd ${HOME}/Work/openocd-0.10.0-8/deploy
+$ cd ${HOME}/Work/openocd-*/deploy
 $ scp * ilg@ilg-mbp.local:Downloads/gme-binaries/oocd
 ```
 
