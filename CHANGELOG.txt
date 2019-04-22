@@ -1,9 +1,9 @@
 
 The changes applied to the OpenOCD master branch, and the releases, are:
 
-[2019-04-09]
+[2019-04-23]
 
-- v0.10.0-12-20190422 released
+- v0.10.0-12-20190423 released
 
 [2019-04-09]
 

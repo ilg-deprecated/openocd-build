@@ -27,10 +27,13 @@ APP_EXECUTABLE_NAME=${APP_EXECUTABLE_NAME:-"openocd"}
 DISTRO_UC_NAME=${DISTRO_UC_NAME:-"GNU MCU Eclipse"}
 DISTRO_LC_NAME=${DISTRO_LC_NAME:-"gnu-mcu-eclipse"}
 
+# TODO: remove it.
+DISTRO_INFO_NAME=${DISTRO_INFO_NAME:-"${DISTRO_LC_NAME}"}
+
 BRANDING=${BRANDING:-"${DISTRO_UC_NAME} OpenOCD"}
 
 CONTAINER_SCRIPT_NAME=${CONTAINER_SCRIPT_NAME:-"container-build.sh"}
 CONTAINER_LIBS_FUNCTIONS_SCRIPT_NAME=${CONTAINER_LIBS_FUNCTIONS_SCRIPT_NAME:-"container-libs-functions-source.sh"}
-CONTAINER_APP_FUNCTIONS_SCRIPT_NAME=${CONTAINER_APP_FUNCTIONS_SCRIPT_NAME:-"container-app-functions-source.sh"}
+CONTAINER_APPS_FUNCTIONS_SCRIPT_NAME=${CONTAINER_APPS_FUNCTIONS_SCRIPT_NAME:-"container-apps-functions-source.sh"}
 
 # -----------------------------------------------------------------------------
