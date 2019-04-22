@@ -16,6 +16,7 @@
 function do_libusb1()
 {
   # https://sourceforge.net/projects/libusb/files/libusb-1.0/
+  # https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=mingw-w64-libusb
 
   # 2015-09-14, 1.0.20
   # 2018-03-25, 1.0.22

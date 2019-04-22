@@ -3,6 +3,10 @@ The changes applied to the OpenOCD master branch, and the releases, are:
 
 [2019-04-09]
 
+- v0.10.0-12-20190422 released
+
+[2019-04-09]
+
 - prepare - v0.10.0-12
 - update to latest master from Apr 7th, 2019
 - update LIBUSB1_VERSION="1.0.22"

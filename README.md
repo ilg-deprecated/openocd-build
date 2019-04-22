@@ -7,7 +7,7 @@ This release follows the official [OpenOCD](http://openocd.org).
 
 The build scripts use the 
 [xPack Build Box (XBB)](https://github.com/xpack/xpack-build-box), 
-a set of elaborate build environments based on GCC 7.2 (Docker containers
+a set of elaborate build environments based on GCC 7.4 (Docker containers
 for GNU/Linux and Windows or a custom HomeBrew for MacOS).
 
 ## Repository URLs
@@ -44,7 +44,7 @@ $ git clone --recurse-submodules -b develop https://github.com/gnu-mcu-eclipse/o
 
 ## The `Work` folder
 
-The script creates a temporary build `Work/qemu-${version}` folder in 
+The script creates a temporary build `Work/openocd-${version}` folder in 
 the user home. Although not recommended, if for any reasons you need to 
 change the location of the `Work` folder, 
 you can redefine `WORK_FOLDER_PATH` variable before invoking the script.
@@ -80,8 +80,8 @@ The result should look similar to:
 ```console
 $ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-ilegeul/centos32    6-xbb-v1            f695dd6cb46e        2 weeks ago         2.92GB
-ilegeul/centos      6-xbb-v1            294dd5ee82f3        2 weeks ago         3.09GB
+ilegeul/centos      6-xbb-v2.1          3644716694e8        2 weeks ago         2.99GB
+ilegeul/centos32    6-xbb-v2.1          921d03805e50        2 weeks ago         2.91GB
 hello-world         latest              f2a91732366c        2 months ago        1.85kB
 ```
 
